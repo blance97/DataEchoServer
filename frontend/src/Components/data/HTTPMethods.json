@@ -1,0 +1,9 @@
+{
+    "HTTPMethodColors":
+    {
+        "POST": "#0acc27",
+        "GET": "#345feb",
+        "DELETE": "#eb3434",
+        "PUT": "#eba834"
+    }
+}
