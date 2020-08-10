@@ -9,6 +9,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-json-pretty": "^2.2.0",
+    "react-redux": "^7.2.1",
     "react-scripts": "3.4.1",
     "react-textarea-autosize": "^8.2.0",
     "semantic-ui-css": "^2.4.1",

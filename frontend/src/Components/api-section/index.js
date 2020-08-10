@@ -67,9 +67,9 @@ class ApiSection extends Component {
                                 <Table.Body>
                             <Table.Row>
                                 <Table.Cell>
-                                    Cell
+                                    <Input fluid/>
                                 </Table.Cell>
-                                <Table.Cell>Cell</Table.Cell>
+                                <Table.Cell><Input fluid/></Table.Cell>
                                 <Table.Cell icon="delete"></Table.Cell>
                             </Table.Row>
                             </Table.Body>
