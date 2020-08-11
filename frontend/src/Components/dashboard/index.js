@@ -7,6 +7,8 @@ class Dashboard extends Component {
     constructor(props) {
         super(props);
         this.state = { activeIndexs: [], apiSections: [] }
+
+        this.onSave = this.onSave.bind(this);
     }
 
     changeActiveSegment(e, data) {
@@ -33,6 +35,15 @@ class Dashboard extends Component {
     this.setState({ activeIndexs: newIndex });
   };
 
+  onSave(data) {
+    const {groupName, index} = data;
+    let newEndpointDetails = data;
+    delete newEndpointDetails['groupName']
+    delete newEndpointDetails['accordionOpen']
+    delete newEndpointDetails['index']
+    this.props.endpoints[groupName][index] = newEndpointDetails;
+  }
+
     render() {
         const { endpoints } = this.props;
         const endpointsKeys = Object.keys(endpoints)
@@ -49,7 +60,7 @@ class Dashboard extends Component {
                     </Accordion.Title>
                      <Accordion.Content active={this.state.activeIndexs.includes(i)}>
                         {endpoints[group].map((endpointDetails, i) => {
-                            return <ApiSection key={i} endpointDetails={endpointDetails}/>
+                            return <ApiSection key={i} onSave={this.onSave} endpointDetails={{...endpointDetails, groupName: group, index: i} }/>
                         })}
                     </Accordion.Content> 
                 </Accordion>

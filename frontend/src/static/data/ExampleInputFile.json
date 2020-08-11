@@ -4,53 +4,26 @@
         "Endpoint": "/api/*",
         "Desc": "descriptiogn",
         "HTTPMethod": "POST",
-        "ResponseBody": {"menu": {
-            "id": "file",
-            "value": "File",
-            "popup": {
-              "menuitem": [
-                {"value": "New", "onclick": "CreateNewDoc()"},
-                {"value": "Open", "onclick": "OpenDoc()"},
-                {"value": "Close", "onclick": "CloseDoc()"}
-              ]
-            }
-          }},
+        "ResponseBodyType": "JSON",
+        "ResponseBody": "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]}}}",
         "ResponseHeader": [{"key": 2}]
         }],
         "API": [{
             "Endpoint": "/api/Please",
             "Desc": "descriptiogn",
             "HTTPMethod": "PUT",
-            "ResponseBody": {"menu": {
-                "id": "file",
-                "value": "File",
-                "popup": {
-                  "menuitem": [
-                    {"value": "New", "onclick": "CreateNewDoc()"},
-                    {"value": "Open", "onclick": "OpenDoc()"},
-                    {"value": "Close", "onclick": "CloseDoc()"}
-                  ]
-                }
-              }},
+            "ResponseBodyType": "JSON",
+            "ResponseBody": "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]}}}",
             "ResponseHeader": [{"key": 2}]
             },
             {
                 "Endpoint": "/api/Work",
                 "Desc": "descriptiogn2",
                 "HTTPMethod": "GET",
-                "ResponseBody": {"menu": {
-                    "id": "file",
-                    "value": "File",
-                    "popup": {
-                      "menuitem": [
-                        {"value": "New", "onclick": "CreateNewDoc()"},
-                        {"value": "Open", "onclick": "OpenDoc()"},
-                        {"value": "Close", "onclick": "CloseDoc()"}
-                      ]
-                    }
-                  }},
+                "ResponseBodyType": "JSON",
+                "ResponseBody": "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]}}}",
                 "ResponseHeader": [{"key": 2}]
-                }
+            }
         ]
     }
     

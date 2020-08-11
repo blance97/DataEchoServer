@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Input, Button, Accordion, Icon, TextArea, Message, Table, Form,Label } from 'semantic-ui-react'
+import { Input, Button, Accordion, Icon, TextArea, Message, Table, Form,Label, Divider } from 'semantic-ui-react'
 import HTTPMethods from '../../static/data/HTTPMethods'
 import JSONPretty from 'react-json-pretty';
 
@@ -7,54 +7,53 @@ class ApiSection extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { query: '', apiLabels: [], accordionOpen: false, responseJSON: "" }
-
-        this.updateJSONBox(this.props.endpointDetails.ResponseBody)
+        this.state = { accordionOpen : false, saved: true, ...this.props.endpointDetails}
         this.updateLabel = this.updateLabel.bind(this);
         this.toggleAccordion = this.toggleAccordion.bind(this);
         this.updateJSONBox = this.updateJSONBox.bind(this)
     }
-
+    
+    componentDidMount(){
+        this.setState({ResponseBody: this.state.ResponseBody})
+    }
     toggleAccordion() {
         this.setState({ accordionOpen: !this.state.accordionOpen})
     }
 
     updateLabel( data) {
-        this.setState({ label: data.value });
+        this.setState({ label: data.value,saved:false });
     }
 
-    updateJSONBox(data){
-        console.log(data);
-        this.setState({responseJSON: data})
+    updateJSONBox(e,data){
+        this.setState({ResponseBody:data.value, saved:false})
     }
 
     handleDismiss = () => { }
 
     render() {
-
-        const {Desc, Endpoint, HTTPMethod, ResponseBody, ResponseHeader} = this.props.endpointDetails;
         return (
             <div style={{marginBottom: '20px'}} >
                 <Message
                     onDismiss={this.handleDismiss}
-                    color={HTTPMethods.HTTPMethodColorsSection[HTTPMethod]} >
+                    color={HTTPMethods.HTTPMethodColorsSection[this.state.HTTPMethod]} >
                     <Input onChange={this.updateLabel}
-                        value={Endpoint}
+                        value={this.state.Endpoint}
                         onChange={event => { this.setState({ query: event.target.value }) }}
                     />
-                    <span style={{ backgroundColor: HTTPMethods.HTTPMethodColors[HTTPMethod], color: 'white', padding: '7px', marginRight: '10px' }}>{HTTPMethod}</span>
+                    <span style={{ backgroundColor: HTTPMethods.HTTPMethodColors[this.state.HTTPMethod], color: 'white', padding: '7px', marginRight: '10px' }}>{this.state.HTTPMethod}</span>
+                    <Message
+                            warning
+                            header='Settings Not Saved'
+                            content='Click the Save Button'
+                            icon='warning sign'
+                            hidden={this.state.saved}
+                            />
                     <Accordion styled>
                     <Accordion.Title active={this.state.accordionOpen} onClick={this.toggleAccordion}>
                         < Icon name='dropdown' />
                             More
                         </Accordion.Title>
                         <Accordion.Content active={this.state.accordionOpen}>
-                        <Message
-                            warning
-                            header='Settings Not Saved'
-                            content='Click the Save Button'
-                            icon='warning sign'
-                            />
                             <Form>
                             <h3> 
                                 Response Headers
@@ -79,18 +78,18 @@ class ApiSection extends Component {
                             </Table>
                             <Button>Add </Button>    
                            
-                            <h3>Response Body</h3>
-                            <Form.Group widths='equal'>
-                                <TextArea placeholder='JSON Response...' value={JSON.stringify(ResponseBody)} onChange={this.updateJSONBox} />
-                                <JSONPretty id="json-pretty" data={ResponseBody}></JSONPretty>
-                            </Form.Group>
+                            <h3>Response Body <span style={{ backgroundColor:'grey', color: "white", padding: '3px' }}>{this.state.ResponseBodyType}</span></h3>
                             <Form.Group>
-                            <Button>Cancel</Button>
-                            <Button positive>Save</Button>
+                                <TextArea style={{width: '50%', marginTop:'15px'}} placeholder='JSON Response...' value={this.state.ResponseBody} onChange={this.updateJSONBox} />
+                                <JSONPretty style={{width: '50%'}} data={this.state.ResponseBody}></JSONPretty>
                             </Form.Group>
                             </Form>
                         </Accordion.Content>
                     </Accordion>
+                    <div style={{paddingTop: '20px'}}>
+                    <Button>Cancel</Button>
+                    <Button primary onClick={() => this.props.onSave( this.state)}>Save</Button>
+                    </div>
                 </Message>
 
             </div>
