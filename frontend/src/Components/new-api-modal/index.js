@@ -1,4 +1,4 @@
-import HTTPMethods from '../data/HTTPMethods.json'
+import HTTPMethods from '../../static/data/HTTPMethods'
 import React, { Component } from 'react'
 import { Form, Button, Dropdown } from 'semantic-ui-react'
 class NewAPIModal extends Component {

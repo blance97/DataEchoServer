@@ -5,5 +5,12 @@
         "GET": "#345feb",
         "DELETE": "#eb3434",
         "PUT": "#eba834"
+    },
+    "HTTPMethodColorsSection":
+    {
+        "POST": "green",
+        "GET": "blue",
+        "DELETE": "red",
+        "PUT": "yellow"
     }
 }

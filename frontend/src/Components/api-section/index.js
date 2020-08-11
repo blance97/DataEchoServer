@@ -1,14 +1,15 @@
 import React, { Component } from 'react'
 import { Input, Button, Accordion, Icon, TextArea, Message, Table, Form,Label } from 'semantic-ui-react'
-import HTTPMethods from '../data/HTTPMethods.json'
+import HTTPMethods from '../../static/data/HTTPMethods'
 import JSONPretty from 'react-json-pretty';
 
 class ApiSection extends Component {
 
     constructor(props) {
         super(props);
-        console.log(this.props)
         this.state = { query: '', apiLabels: [], accordionOpen: false, responseJSON: "" }
+
+        this.updateJSONBox(this.props.endpointDetails.ResponseBody)
         this.updateLabel = this.updateLabel.bind(this);
         this.toggleAccordion = this.toggleAccordion.bind(this);
         this.updateJSONBox = this.updateJSONBox.bind(this)
@@ -18,28 +19,30 @@ class ApiSection extends Component {
         this.setState({ accordionOpen: !this.state.accordionOpen})
     }
 
-    updateLabel(event, data) {
+    updateLabel( data) {
         this.setState({ label: data.value });
     }
 
-    updateJSONBox(_, data){
+    updateJSONBox(data){
         console.log(data);
-        this.setState({responseJSON: data.value})
+        this.setState({responseJSON: data})
     }
 
     handleDismiss = () => { }
 
     render() {
+
+        const {Desc, Endpoint, HTTPMethod, ResponseBody, ResponseHeader} = this.props.endpointDetails;
         return (
-            <div >
+            <div style={{marginBottom: '20px'}} >
                 <Message
                     onDismiss={this.handleDismiss}
-                    color={"blue"} >
+                    color={HTTPMethods.HTTPMethodColorsSection[HTTPMethod]} >
                     <Input onChange={this.updateLabel}
-                        value={this.state.query}
+                        value={Endpoint}
                         onChange={event => { this.setState({ query: event.target.value }) }}
                     />
-                    <span style={{ backgroundColor: HTTPMethods.HTTPMethodColors[this.props.httpMethod], color: 'white', padding: '7px', marginRight: '10px' }}>{this.props.httpMethod}</span>
+                    <span style={{ backgroundColor: HTTPMethods.HTTPMethodColors[HTTPMethod], color: 'white', padding: '7px', marginRight: '10px' }}>{HTTPMethod}</span>
                     <Accordion styled>
                     <Accordion.Title active={this.state.accordionOpen} onClick={this.toggleAccordion}>
                         < Icon name='dropdown' />
@@ -78,8 +81,8 @@ class ApiSection extends Component {
                            
                             <h3>Response Body</h3>
                             <Form.Group widths='equal'>
-                                <TextArea placeholder='JSON Response...' onChange={this.updateJSONBox} />
-                                <JSONPretty id="json-pretty" data={this.state.responseJSON}></JSONPretty>
+                                <TextArea placeholder='JSON Response...' value={JSON.stringify(ResponseBody)} onChange={this.updateJSONBox} />
+                                <JSONPretty id="json-pretty" data={ResponseBody}></JSONPretty>
                             </Form.Group>
                             <Form.Group>
                             <Button>Cancel</Button>
