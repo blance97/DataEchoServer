@@ -15,7 +15,8 @@ class NewGroupModal extends Component {
     }
 
     submitModal = ()  => {
-        this.removeModal;
+        this.removeModal();
+        
         this.props.onNewGroupModalSubmit(this.state.groupName);
     }
 

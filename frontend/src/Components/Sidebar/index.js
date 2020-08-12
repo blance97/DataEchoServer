@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { List, Header, Icon, Button, Modal, Divider } from 'semantic-ui-react'
 import NewAPIModal from '../new-api-modal';
 import NewGroupModal from '../new-group-modal';
+import { ToastContainer, toast } from 'react-toastify';
 class Sidebar extends Component {
 
     constructor(props) {
@@ -24,6 +25,8 @@ class Sidebar extends Component {
         console.log(data);
       
     }
+
+    upload = () => {}
 
     onNewGroupModalSubmit(groupName) {
        console.log(groupName)
@@ -62,7 +65,7 @@ class Sidebar extends Component {
                     </Header>
                     <List.Item>
                         <List.Content>
-                            <Button primary fluid ><Icon name='upload' />Export  </Button>
+                            <Button primary fluid onClick={this.upload} ><Icon name='upload' />Export  </Button>
                         </List.Content>
                     </List.Item>
                     <List.Item>
