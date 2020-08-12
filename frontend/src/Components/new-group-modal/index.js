@@ -1,19 +1,25 @@
 import React, { Component } from 'react'
-import { Form } from 'semantic-ui-react'
+import { Form, Button, Icon, Divider } from 'semantic-ui-react'
 
 
 class NewGroupModal extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { groupName: ''}
+        this.state = { groupName: '' }
 
     }
 
-    submitModal() {
-        console.log(this.state.groupName);
-        // this.setState({ httpMethod: data.text })
+    removeModal = () => {
+        this.props.setGroupModal(null, false);
     }
+
+    submitModal = ()  => {
+        this.removeModal;
+        this.props.onNewGroupModalSubmit(this.state.groupName);
+    }
+
+   
 
 
     render() {
@@ -22,9 +28,17 @@ class NewGroupModal extends Component {
                 <Form.Input
                     label="Group Name"
                     placeholder='Group name'
-                    onChange={(e) => this.setState({groupName:e.target.value})}
+                    onChange={(e) => this.setState({ groupName: e.target.value })}
                 />
-
+                <Divider/>
+                <div style ={{float:'right', padding:'20px'}}>
+                <Button color='red' onClick={this.removeModal}>
+                    <Icon name='remove' /> Cancel
+                </Button>
+                <Button color='green' type='submit'>
+                    <Icon name='checkmark' /> Submit
+                </Button>
+                </div>
             </Form>
 
         );

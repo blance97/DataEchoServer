@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Input, Button, Accordion, Icon, TextArea, Message, Table, Form,Label, Divider } from 'semantic-ui-react'
+import { Input, Button, Accordion, Icon, TextArea, Message, Table, Form,Label, Divider, Segment } from 'semantic-ui-react'
 import HTTPMethods from '../../static/data/HTTPMethods'
 import JSONPretty from 'react-json-pretty';
 
@@ -48,6 +48,7 @@ class ApiSection extends Component {
                             icon='warning sign'
                             hidden={this.state.saved}
                             />
+                    {(this.state.Desc && this.state.Desc.length > 0) ? <Segment style={{color: 'grey'}}>{this.state.Desc}</Segment>: null}
                     <Accordion styled>
                     <Accordion.Title active={this.state.accordionOpen} onClick={this.toggleAccordion}>
                         < Icon name='dropdown' />
@@ -77,7 +78,6 @@ class ApiSection extends Component {
                             </Table.Body>
                             </Table>
                             <Button>Add </Button>    
-                           
                             <h3>Response Body <span style={{ backgroundColor:'grey', color: "white", padding: '3px' }}>{this.state.ResponseBodyType}</span></h3>
                             <Form.Group>
                                 <TextArea style={{width: '50%', marginTop:'15px'}} placeholder='JSON Response...' value={this.state.ResponseBody} onChange={this.updateJSONBox} />

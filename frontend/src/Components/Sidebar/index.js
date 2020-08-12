@@ -9,7 +9,6 @@ class Sidebar extends Component {
         this.state = { showNewAPIModal: false, showNewGroupModal: false }
         
         this.onNewGroupModalSubmit = this.onNewGroupModalSubmit.bind(this)
-        this.modalSubmit = this.modalSubmit.bind(this);
     }
 
     setAPIModal(e, value) {
@@ -17,17 +16,18 @@ class Sidebar extends Component {
         this.setState({ showNewAPIModal: value });
     }
 
-    setGroupModal(e, value) {
-        e.stopPropagation();
+    setGroupModal = (e, value) => {
         this.setState({ showNewGroupModal: value });
     }
 
-    modalSubmit(data) {
-        // this.setState({ showNewAPIModal: false });
+    modalSubmit = (e,data) => {
+        console.log(data);
+      
     }
 
-    onNewGroupModalSubmit(data) {
-       
+    onNewGroupModalSubmit(groupName) {
+       console.log(groupName)
+        this.props.addGroup(groupName)
     }
 
     render() {
@@ -85,18 +85,11 @@ class Sidebar extends Component {
                         </Button>
                     </Modal.Actions>
                 </Modal>
+
                 <Modal open={this.state.showNewGroupModal} onClose={(e) => this.setGroupModal(e, false)}>
                     <Modal.Content>
-                        <NewGroupModal onNewGroupModalSubmit={this.onNewGroupModalSubmit} />
+                        <NewGroupModal setGroupModal={this.setGroupModal} onNewGroupModalSubmit={this.onNewGroupModalSubmit} />
                     </Modal.Content>
-                    <Modal.Actions>
-                        <Button color='red' onClick={(e) => this.setGroupModal(e, false)}>
-                            <Icon name='remove' /> Cancel
-                        </Button>
-                        <Button color='green' onClick={(e) => this.setGroupModal(e, true)}>
-                            <Icon name='checkmark' /> Submit
-                        </Button>
-                    </Modal.Actions>
                 </Modal>
             </div>
 
