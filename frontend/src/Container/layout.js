@@ -22,9 +22,9 @@ class LayoutContainer extends Component {
         axios.put('/addGroup', {groupName: groupName}).then((response) =>{
             this.setState({loading:false, groups: {...this.state.groups, ...response.data } });
         }).catch((err) =>{
-            this.setState({error: err.response.data})
+            this.setState({error: err.response.data.data})
             toast.configure();
-            toast.error(this.state.error.data, {position: 'top-center', draggable: false})
+            toast.error(this.state.error, {position: 'top-center', draggable: false})
             console.log(this.state.error);
         })
     }
