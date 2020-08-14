@@ -3,7 +3,8 @@ class DatabaseService:
     def __init__(self, dbPath: str):
         self.conn = sqlite3.connect(dbPath)
         self.setup()
-        
+
+
     def setup(self):
         cur = self.conn.cursor()
         try:
@@ -41,7 +42,26 @@ class DatabaseService:
             self.conn.commit()
         except Exception as err:
             print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
+        
+    def deleteGroup(self, groupName: str) -> None:
+        try:
+            cur = self.conn.cursor()
+            sqlQuery = "DELETE FROM Groups WHERE name = ?"
+            cur.execute(sqlQuery, [groupName])
+            self.conn.commit()
+        except Exception as err:
+            print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
     
+    def updateGroup(self,groupName: str, newGroupName: str) -> None:
+        try:
+            cur = self.conn.cursor()
+            sqlQuery = "UPDATE Groups SET name = ? WHERE name = ?"
+            values = tuple([newGroupName, groupName])
+            cur.execute(sqlQuery, values)
+            self.conn.commit()
+        except Exception as err:
+            print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
+
     def getGroupID(self, groupName: str) -> int:
         try:
             sqlQuery = "SELECT * from Groups WHERE name = ?"
@@ -67,13 +87,25 @@ class DatabaseService:
                 cur = self.conn.cursor()
                 sqlQuery = "INSERT INTO EndpointDetails ( endpoint, description, HTTPMethod, responseBodyType, responseBody,groupId) values(?,?,?,?,?,?)"
                 endpointDetails['groupId'] = groupId
-                values = tuple(endpointDetails.values())
+                values = tuple([endpointDetails['endpoint'], endpointDetails['description'], endpointDetails['HTTPMethod'], endpointDetails['responseBodyType'], endpointDetails['responseBody'], endpointDetails['groupId']])
                 cur.execute(sqlQuery, values)
                 self.conn.commit()
             except Exception as err:
                 print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
         else:
             print("Group ID not found")
+    
+    def updateEndpoint(self, endpoint: str, HTTPMethod: str,  newEndpointDetails: dict) -> None:
+        try:
+            cur = self.conn.cursor()
+            sqlQuery = """UPDATE EndpointDetails SET endpoint = ?, description = ?, HTTPMethod = ?, responseBodyType = ?, responseBody = ? WHERE endpoint = ? AND HTTPMethod= ?"""
+
+            values = tuple([newEndpointDetails['endpoint'], newEndpointDetails['description'], newEndpointDetails['HTTPMethod'], newEndpointDetails['responseBodyType'], newEndpointDetails['responseBody'], endpoint, HTTPMethod])
+            print(values)
+            cur.execute(sqlQuery, values)
+            self.conn.commit()
+        except Exception as err:
+            print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
 
     def deleteEndpoint(self, groupName: str, endpointDetails: dict) -> None:
         groupId = self.getGroupID(groupName)
@@ -93,8 +125,22 @@ class DatabaseService:
         try:
             cur = self.conn.cursor()
             sqlQuery = "INSERT INTO ResponseHeaders (endpoint, HTTPMethod, key, value) values(?,?,?,?)"
-            values = tuple([endpoint, HTTPMethod, tuple(headers.keys())[0], tuple(headers.values())[0]])
-            cur.execute(sqlQuery, values)
+            key = tuple(headers.keys())[0]
+            value = tuple(headers.values())[0]
+            sqlQuery = tuple([endpoint, HTTPMethod, key, value])
+            cur.execute(sqlQuery, sqlQuery)
+            self.conn.commit()
+        except Exception as err:
+            print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
+
+    def updateResponseHeaders(self, endpoint: str, HTTPMethod: str, headers: dict) -> None:
+        try:
+            cur = self.conn.cursor()
+            sqlQuery = "UPDATE ResponseHeaders SET key = ?, value=? WHERE endpoint = ? AND HTTPMethod=?"
+            key = tuple(headers.keys())[0]
+            value = tuple(headers.values())[0]
+            sqlValues = tuple([key, value, endpoint, HTTPMethod])
+            cur.execute(sqlQuery, sqlValues)
             self.conn.commit()
         except Exception as err:
             print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
@@ -103,8 +149,10 @@ class DatabaseService:
         try:
             cur = self.conn.cursor()
             sqlQuery = "DELETE FROM ResponseHeaders WHERE endpoint=? and HTTPMethod=? and key=? and value=?"
-            values = tuple([endpoint, HTTPMethod, tuple(headers.keys())[0], tuple(headers.values())[0]])
-            cur.execute(sqlQuery, values)
+            key = tuple(headers.keys())[0]
+            value = tuple(headers.values())[0]
+            sqlValues = tuple([endpoint, HTTPMethod, key, value])
+            cur.execute(sqlQuery, sqlValues)
             self.conn.commit()
         except Exception as err:
             print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
