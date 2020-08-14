@@ -1,9 +1,13 @@
 from flask import request,Flask, jsonify
-import json
-# from flask_sqlalchemy import SQLAlchemy
+import json  
+import sqlite3
 app = Flask(__name__)
+from DatabaseService import DatabaseService
 
-@app.route("/", methods=['GET', 'POST','DELETE','PUT'])
+supportedMethods = ['GET', 'POST','DELETE','PUT']
+
+
+@app.route("/", methods=supportedMethods)
 def home():
     return "Hello, World!"
 
@@ -18,4 +22,5 @@ def addGroup():
     return jsonify(response)
     
 if __name__ == "__main__":
+    DatabaseService('db/EchoServer.db')
     app.run(debug=True)
