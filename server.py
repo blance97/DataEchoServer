@@ -11,16 +11,26 @@ supportedMethods = ['GET', 'POST','DELETE','PUT']
 def home():
     return "Hello, World!"
 
+@app.route("/getJSON", methods=['GET'])
+def getJSON():
+    formatedDict = db.generateFormatedDictionary()
+    return jsonify(formatedDict)
+
 @app.route("/addGroup", methods=['PUT'])
 def addGroup():
     content = request.get_json()
+    groupName = content['name']
     response = {}
-    if(content['groupName'] is None or len(content['groupName']) < 1):
+    if(groupName is None or len(groupName) < 1):
         response = {'data': 'Group name not defined or is too short'}
-        return jsonify(response), 400 
-    response = {content['groupName']: []}
+        return jsonify(response), 400
+    try:
+        db.insertNewGroup(groupName)
+        response = {groupName: []}
+    except Exception as err:
+        return jsonify({"Error": str(err)}), 400
     return jsonify(response)
     
 if __name__ == "__main__":
-    DatabaseService('db/EchoServer.db')
+    db = DatabaseService('db/EchoServer.db')
     app.run(debug=True)

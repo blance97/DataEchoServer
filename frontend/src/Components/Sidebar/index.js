@@ -8,8 +8,6 @@ class Sidebar extends Component {
     constructor(props) {
         super(props);
         this.state = { showNewAPIModal: false, showNewGroupModal: false }
-        
-        this.onNewGroupModalSubmit = this.onNewGroupModalSubmit.bind(this)
     }
 
     setAPIModal(e, value) {
@@ -23,12 +21,12 @@ class Sidebar extends Component {
 
     modalSubmit = (e,data) => {
         console.log(data);
-      
+        
     }
 
     upload = () => {}
 
-    onNewGroupModalSubmit(groupName) {
+    onNewGroupModalSubmit = (groupName) => {
        console.log(groupName)
         this.props.addGroup(groupName)
     }
