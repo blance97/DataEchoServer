@@ -6,7 +6,7 @@
         "HTTPMethod": "POST",
         "ResponseBodyType": "JSON",
         "ResponseBody": "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]}}}",
-        "ResponseHeader": [{"key": 2}]
+        "ResponseHeaders": [{"key": 2}]
         }],
         "API": [{
             "Endpoint": "/api/Please",
@@ -14,7 +14,7 @@
             "HTTPMethod": "PUT",
             "ResponseBodyType": "JSON",
             "ResponseBody": "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]}}}",
-            "ResponseHeader": [{"key": 2}]
+            "ResponseHeaders": [{"key": 2}]
             },
             {
                 "Endpoint": "/api/Work",
@@ -22,7 +22,7 @@
                 "HTTPMethod": "GET",
                 "ResponseBodyType": "JSON",
                 "ResponseBody": "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]}}}",
-                "ResponseHeader": [{"key": 2}]
+                "ResponseHeaders": [{"key": 2}]
             }
         ]
     }

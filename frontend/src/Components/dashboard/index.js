@@ -45,7 +45,7 @@ class Dashboard extends Component {
   }
 
     render() {
-        const { endpoints } = this.props;
+        const { endpoints } = this.props; 
         const endpointsKeys = Object.keys(endpoints)
 
         return (

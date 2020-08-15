@@ -13,8 +13,46 @@ def home():
 
 @app.route("/getJSON", methods=['GET'])
 def getJSON():
-    formatedDict = db.generateFormatedDictionary()
-    return jsonify(formatedDict)
+    formattedDict = db.generateFormattedDictionary()
+    return jsonify(formattedDict)
+
+@app.route("/loadJSON", methods=['POST'])
+def loadJSON():
+    try:
+        db.loadFormattedJSON({ 
+            "groups":{
+                "API": [{
+                    "endpoint": "/api/*",
+                    "description": "",
+                    "HTTPMethod": "POST",
+                    "responseBodyType": "JSON",
+                    "responseBody": "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]}}}",
+                    "responseHeaders": [{"key": "2"}]
+                    }],
+                    "General": [{
+                        "endpoint": "/api/Please",
+                        "description": "descriptiogn",
+                        "HTTPMethod": "PUT",
+                        "responseBodyType": "JSON",
+                        "responseBody": "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]}}}",
+                        "responseHeaders": [{"key": "2"}, {"key2": "FSDFDSFDSGSFDGBFCVD"}]
+                        },
+                        {
+                            "endpoint": "/api/Work",
+                            "description": "descriptiogn2",
+                            "HTTPMethod": "GET",
+                            "responseBodyType": "JSON",
+                            "responseBody": "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]}}}",
+                            "responseHeaders": [{"key": "2"}]
+                        }
+                    ]
+                }
+            }
+            )
+    except Exception as err:
+        return jsonify({"Error": str(err)}), 400
+    return jsonify({'message':'Succesfully uploaded JSON to DB'})
+
 
 @app.route("/addGroup", methods=['PUT'])
 def addGroup():

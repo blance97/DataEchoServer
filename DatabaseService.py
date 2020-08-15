@@ -1,13 +1,14 @@
 import sqlite3
+import json
 class DatabaseService:
     def __init__(self, dbPath: str):
         self.conn = sqlite3.connect(dbPath, check_same_thread=False)
         self.setup()
 
-
     def setup(self):
         cur = self.conn.cursor()
         try:
+            cur.execute("PRAGMA foreign_keys = ON;")
             cur.execute('''CREATE TABLE IF NOT EXISTS Groups
                         (id INTEGER PRIMARY KEY, 
                         name TEXT NOT NULL UNIQUE)''')
@@ -43,50 +44,103 @@ class DatabaseService:
     """
     generate a json format representaion of the DB
     """
-    def generateFormatedDictionary(self) -> dict:
-        GeneratedJSON = {'Groups': {}}
+    def generateFormattedDictionary(self) -> dict:
+        GeneratedJSON = {'groups': {}}
         try:
             cur = self.conn.cursor()
             sqlQuery = 'SELECT * FROM Overview_VIEW'
             cur.execute(sqlQuery)
             rows = cur.fetchall()
             for row in rows:
-                rowData = {'groupName':row[0],'groupId': row[1], 'endpoint':row[2], 'desc': row[3], 'HTTPMethod':row[4], 'responseBodyType': row[5], 'responseBody': row[6] ,'headerKey': row[7], 'headerValue': row[8]}
+                rowData = {'groupName':row[0],'groupId': row[1], 'endpoint':row[2], 'description': row[3], 'HTTPMethod':row[4], 'responseBodyType': row[5], 'responseBody': row[6] ,'headerKey': row[7], 'headerValue': row[8]}
 
+                
                 if rowData['groupId'] is None:
-                    GeneratedJSON['Groups'][rowData['groupName']] = []
+                    GeneratedJSON['groups'][rowData['groupName']] = []
                     continue
-                
-                if rowData['groupName'] not in GeneratedJSON['Groups']:
-                    GeneratedJSON['Groups'][rowData['groupName']] = []
 
-                endpointDetails = GeneratedJSON['Groups'][rowData['groupName']]
                 
+                if rowData['groupName'] not in GeneratedJSON['groups']:
+                    GeneratedJSON['groups'][rowData['groupName']] = []
+
+                endpointDetails = GeneratedJSON['groups'][rowData['groupName']]
                 responseHeaders = {rowData['headerKey']: rowData['headerValue']}
                 if rowData['headerKey'] is None or rowData['headerValue'] is None:
                     responseHeaders = {}
-
-                newEndpointInfo = {'Endpoint': rowData['endpoint'], 'Desc': rowData['desc'], 'HTTPMethod': rowData['HTTPMethod'], 'ResponseBodyType': rowData['responseBodyType'], 'ResponseBody': rowData['responseBody'], "ResponseHeaders": [responseHeaders]}
+       
+                convertedJSON = json.loads(rowData['responseBody'])
+                newEndpointInfo = {'endpoint': rowData['endpoint'], 'description': rowData['description'], 'HTTPMethod': rowData['HTTPMethod'], 'responseBodyType': rowData['responseBodyType'], 'responseBody': convertedJSON, "responseHeaders": [responseHeaders]}
 
                 insertNewRow = True
                 if len(endpointDetails) > 0:
                     for i, detail in enumerate(endpointDetails):
-                        if rowData['endpoint'] ==  detail['Endpoint'] and rowData['HTTPMethod'] == detail['HTTPMethod']:
-                            endpointDetails[i]['ResponseHeaders'].append({rowData['headerKey']: rowData['headerValue']})
+                        if rowData['endpoint'] ==  detail['endpoint'] and rowData['HTTPMethod'] == detail['HTTPMethod']:
+                            endpointDetails[i]['responseHeaders'].append({rowData['headerKey']: rowData['headerValue']})
                             insertNewRow = False
                 
                 if insertNewRow:
                     endpointDetails.append(newEndpointInfo)
-                        
             return GeneratedJSON
 
         except Exception as err:
             print(err)
+
+    def clearGroupsTable(self):
+        try:
+            cur = self.conn.cursor()
+
+            sqlQuery = 'DELETE FROM Groups'
+            cur.execute(sqlQuery)
+            self.conn.commit()
+        except Exception as err:
+            raise Exception(err)
+            print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
+    
+    def loadFormattedJSON(self, formattedJSON: dict) -> None:
+            self.clearGroupsTable()
+            groups = formattedJSON['groups']
+            self.loadGroups(groups)
+
+            for groupName, val in groups.items():
+                self.loadEndpoints(groupName,val)
+
+    def loadEndpoints(self, groupName: str, endpoints:[]) -> None:
+        if len(endpoints) == 0:
+            return
+        try:
+            for val in endpoints:
+                responseHeaders = val.pop('responseHeaders', None)
+                if responseHeaders is None:
+                    raise Exception("Response Headers not defined correctly. Please check naming.")
+                val['responseBody'] = json.dumps(val['responseBody'])
+                self.insertEndpoint(groupName, val) 
+                self.loadResponseHeaders(val['endpoint'], val['HTTPMethod'], responseHeaders)
+        except Exception as err:
+            raise err
+
+    def loadResponseHeaders(self,endpoint: str, HTTPMethod:str, responseHeaders: []) -> None:
+        if len(responseHeaders) == 0:
+            return
+        try:
+            for val in responseHeaders:
+                self.insertResponseHeaders(endpoint, HTTPMethod, val)
+        except Exception as err:
+            raise err
+
+    def loadGroups(self, groups: dict) -> None:
+        if not dict:
+            return
+        
+        for groupName, val in groups.items():
+            try:
+                self.insertNewGroup(groupName)
+            except Exception as err:
+                raise err
             
     def insertNewGroup(self, groupName: str) -> None:
         try:
             cur = self.conn.cursor()
-            sqlQuery = 'INSERT INTO Groups (name) values(?)'
+            sqlQuery = 'INSERT INTO groups (name) values(?)'
             cur.execute(sqlQuery, [groupName])
             self.conn.commit()
         except Exception as err:
@@ -177,8 +231,8 @@ class DatabaseService:
             sqlQuery = 'INSERT INTO ResponseHeaders (endpoint, HTTPMethod, key, value) values(?,?,?,?)'
             key = tuple(headers.keys())[0]
             value = tuple(headers.values())[0]
-            sqlQuery = tuple([endpoint, HTTPMethod, key, value])
-            cur.execute(sqlQuery, sqlQuery)
+            headers = tuple([endpoint, HTTPMethod, key, value])
+            cur.execute(sqlQuery, headers)
             self.conn.commit()
         except Exception as err:
             print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))

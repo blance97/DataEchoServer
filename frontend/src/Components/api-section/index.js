@@ -14,7 +14,7 @@ class ApiSection extends Component {
     }
     
     componentDidMount(){
-        this.setState({ResponseBody: this.state.ResponseBody})
+        this.setState({responseBody: this.state.responseBody})
     }
     toggleAccordion() {
         this.setState({ accordionOpen: !this.state.accordionOpen})
@@ -25,19 +25,24 @@ class ApiSection extends Component {
     }
 
     updateJSONBox(e,data){
-        this.setState({ResponseBody:data.value, saved:false})
+        this.setState({responseBody:data.value, saved:false})
+    }
+
+    addResponseHeaderRow = () =>{
+        this.setState({responseHeaders: [...this.state.responseHeaders, {}]})
     }
 
     handleDismiss = () => { }
 
     render() {
+        console.log(this.state)
         return (
             <div style={{marginBottom: '20px'}} >
                 <Message
                     onDismiss={this.handleDismiss}
                     color={HTTPMethods.HTTPMethodColorsSection[this.state.HTTPMethod]} >
                     <Input onChange={this.updateLabel}
-                        value={this.state.Endpoint}
+                        value={this.state.endpoint}
                         onChange={event => { this.setState({ query: event.target.value }) }}
                     />
                     <span style={{ backgroundColor: HTTPMethods.HTTPMethodColors[this.state.HTTPMethod], color: 'white', padding: '7px', marginRight: '10px' }}>{this.state.HTTPMethod}</span>
@@ -48,7 +53,7 @@ class ApiSection extends Component {
                             icon='warning sign'
                             hidden={this.state.saved}
                             />
-                    {(this.state.Desc && this.state.Desc.length > 0) ? <Segment style={{color: 'grey'}}>{this.state.Desc}</Segment>: null}
+                    {(this.state.description && this.state.description.length > 0) ? <Segment style={{color: 'grey'}}><b>Description:</b> {this.state.description}</Segment>: null}
                     <Accordion styled>
                     <Accordion.Title active={this.state.accordionOpen} onClick={this.toggleAccordion}>
                         < Icon name='dropdown' />
@@ -68,20 +73,24 @@ class ApiSection extends Component {
                                 </Table.Row>
                                 </Table.Header>    
                                 <Table.Body>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Input fluid/>
-                                </Table.Cell>
-                                <Table.Cell><Input fluid/></Table.Cell>
-                                <Table.Cell icon="delete"></Table.Cell>
-                            </Table.Row>
+                            
+                                {this.state.responseHeaders.map((v,i) => {
+                                    let headerKey = Object.keys(v)[0];
+                                    return (
+                                    <Table.Row>
+                                        <Table.Cell><Input fluid value={headerKey}/></Table.Cell>
+                                        <Table.Cell><Input fluid value={v[headerKey]}/></Table.Cell>
+                                        <Table.Cell icon="delete"></Table.Cell>
+                                    </Table.Row>)
+                                })}
+                            
                             </Table.Body>
                             </Table>
-                            <Button>Add </Button>    
-                            <h3>Response Body <span style={{ backgroundColor:'grey', color: "white", padding: '3px' }}>{this.state.ResponseBodyType}</span></h3>
+                            <Button onClick={this.addResponseHeaderRow}>Add </Button>    
+                            <h3>Response Body <span style={{ backgroundColor:'grey', color: "white", padding: '3px' }}>{this.state.responseBodyType}</span></h3>
                             <Form.Group>
-                                <TextArea style={{width: '50%', marginTop:'15px'}} placeholder='JSON Response...' value={this.state.ResponseBody} onChange={this.updateJSONBox} />
-                                <JSONPretty style={{width: '50%'}} data={this.state.ResponseBody}></JSONPretty>
+                                <TextArea style={{width: '50%', marginTop:'15px'}} placeholder='JSON Response...' value={this.state.responseBody} onChange={this.updateJSONBox} />
+                                <JSONPretty style={{width: '50%'}} data={this.state.responseBody}></JSONPretty>
                             </Form.Group>
                             </Form>
                         </Accordion.Content>

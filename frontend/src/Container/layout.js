@@ -12,10 +12,20 @@ class LayoutContainer extends Component {
     constructor(props) {
         super(props);
 
-        const endpoint = ExampleInputFile
+        // const endpoint = ExampleInputFile
 
-        this.state = { error:{} ,groups: endpoint.groups}
-    } 
+        this.state = { error:{} ,groups: {}}
+    }
+
+    componentDidMount() {
+        this.getInitialSetup()
+    }
+
+    getInitialSetup = () => {
+        axios.get('/getJSON').then((res) =>{
+            this.setState({groups: res.data['groups']})
+        })
+    }
 
     addGroup = (groupName) => {
         this.setState({loading: true})
