@@ -4,7 +4,7 @@ class DatabaseService:
     def __init__(self, dbPath: str):
         self.conn = sqlite3.connect(dbPath, check_same_thread=False)
         self.setup()
-
+        print(self.selectAllEndpoints())
     def setup(self):
         cur = self.conn.cursor()
         try:
@@ -58,8 +58,7 @@ class DatabaseService:
                 if rowData['groupId'] is None:
                     GeneratedJSON['groups'][rowData['groupName']] = []
                     continue
-
-                
+        
                 if rowData['groupName'] not in GeneratedJSON['groups']:
                     GeneratedJSON['groups'][rowData['groupName']] = []
 
@@ -205,9 +204,17 @@ class DatabaseService:
             sqlQuery = '''UPDATE EndpointDetails SET endpoint = ?, description = ?, HTTPMethod = ?, responseBodyType = ?, responseBody = ? WHERE endpoint = ? AND HTTPMethod= ?'''
 
             values = tuple([newEndpointDetails['endpoint'], newEndpointDetails['description'], newEndpointDetails['HTTPMethod'], newEndpointDetails['responseBodyType'], newEndpointDetails['responseBody'], endpoint, HTTPMethod])
-            print(values)
             cur.execute(sqlQuery, values)
             self.conn.commit()
+        except Exception as err:
+            print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
+        
+    def selectAllEndpoints(self) -> None:
+        try:
+            cur = self.conn.cursor()
+            sqlQuery = 'SELECT endpoint, HTTPMethod FROM EndpointDetails'
+            cur.execute(sqlQuery)
+            return cur.fetchall()
         except Exception as err:
             print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
 

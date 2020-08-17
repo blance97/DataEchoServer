@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import {  Accordion, Icon, Divider } from 'semantic-ui-react'
+import {  Accordion, Icon, Segment, Header, Button, Divider } from 'semantic-ui-react'
 import ApiSection from '../api-section';
 
 class Dashboard extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { activeIndexs: [], apiSections: [] }
+        this.state = { activeIndexs: [], endpoints: {} }
 
         this.onSave = this.onSave.bind(this);
     }
@@ -15,12 +15,17 @@ class Dashboard extends Component {
         let newIndex = data.index === this.state.activeSegment ? -1 : data.index
     }
 
-    addApi(e) {
-        e.stopPropagation();
-        this.setState({ showNewAPIModal: true });
+    addEndpoint(groupName) {
+        console.log(groupName)
+        let addedEndpoint = this.state.endpoints
+        addedEndpoint[groupName] = [...addedEndpoint[groupName],{HTTPMethod: "", description: "", endpoint: "", responseBody: "{}", responseBodyType:"",responseHeaders: []}]
+        console.log(addedEndpoint)
+        this.setState({endpoints: addedEndpoint});
+        console.log(this.state)
+        // this.props.addEndpoint(groupName)
     }
     
-  handleClick = (e, titleProps) => {
+    handleClick = (e, titleProps) => {
         const { index } = titleProps;
         const { activeIndexs } = this.state;
         const newIndex = activeIndexs;
@@ -35,6 +40,12 @@ class Dashboard extends Component {
     this.setState({ activeIndexs: newIndex });
   };
 
+  componentDidUpdate(prevProps){
+    if(this.props.endpoints !== prevProps.endpoints){
+        this.setState({endpoints: {...this.state.endpoints, ...this.props.endpoints}})
+    }
+  }
+
   onSave(data) {
     const {groupName, index} = data;
     let newEndpointDetails = data;
@@ -42,12 +53,11 @@ class Dashboard extends Component {
     delete newEndpointDetails['accordionOpen']
     delete newEndpointDetails['index']
     this.props.endpoints[groupName][index] = newEndpointDetails;
+    console.log(newEndpointDetails)
   }
 
-    render() {
-        const { endpoints } = this.props; 
-        const endpointsKeys = Object.keys(endpoints)
-
+    render() { 
+        const endpointsKeys = Object.keys(this.state.endpoints)
         return (
             <div>
                 {(endpointsKeys.length > 0) 
@@ -59,16 +69,20 @@ class Dashboard extends Component {
                         {group}
                     </Accordion.Title>
                      <Accordion.Content active={this.state.activeIndexs.includes(i)}>
-                        {endpoints[group].map((endpointDetails, i) => {
+                            <Button primary fluid onClick={() => this.addEndpoint(group)} > <Icon name="add"></Icon>Add HTTP Request</Button>
+                            <Divider/>
+                        {this.state.endpoints[group].map((endpointDetails, i) => {
                             return <ApiSection key={i} onSave={this.onSave} endpointDetails={{...endpointDetails, groupName: group, index: i} }/>
                         })}
                     </Accordion.Content> 
-                </Accordion>
-
-                )
+                </Accordion>)
                 }))
-                : <div>nothing</div>
-            }
+                :  <Segment placeholder>
+                <Header icon>
+                  <Icon name='warning circle' />
+                 No groups created. Create one to get started.
+                </Header>
+              </Segment>}
             </div>
         );
     }

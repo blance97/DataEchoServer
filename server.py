@@ -7,9 +7,16 @@ from DatabaseService import DatabaseService
 supportedMethods = ['GET', 'POST','DELETE','PUT']
 
 
-@app.route("/", methods=supportedMethods)
-def home():
+@app.route("/*", methods=supportedMethods)
+def response():
+   
     return "Hello, World!"
+
+@app.route('/<path:path>', methods=supportedMethods)
+def catch_all(path):
+    endpoints = db.selectAllEndpoints()
+    print(("/" + path , request.method) in endpoints)
+    return 'You want path: %s' % path
 
 @app.route("/getJSON", methods=['GET'])
 def getJSON():

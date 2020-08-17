@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Input, Button, Accordion, Icon, TextArea, Message, Table, Form,Label, Divider, Segment } from 'semantic-ui-react'
+import { Input, Button, Accordion, Icon, TextArea, Message, Table, Form,Label, Divider, Segment, Dropdown } from 'semantic-ui-react'
 import HTTPMethods from '../../static/data/HTTPMethods'
 import JSONPretty from 'react-json-pretty';
 
@@ -8,24 +8,32 @@ class ApiSection extends Component {
     constructor(props) {
         super(props);
         this.state = { accordionOpen : false, saved: true, ...this.props.endpointDetails}
-        this.updateLabel = this.updateLabel.bind(this);
+        this.updateEndpointURL = this.updateEndpointURL.bind(this);
         this.toggleAccordion = this.toggleAccordion.bind(this);
         this.updateJSONBox = this.updateJSONBox.bind(this)
     }
     
     componentDidMount(){
         this.setState({responseBody: this.state.responseBody})
+        if(this.state.HTTPMethod === ''){
+            this.setState({saved:false})
+        }
     }
     toggleAccordion() {
         this.setState({ accordionOpen: !this.state.accordionOpen})
     }
 
-    updateLabel( data) {
+    updateEndpointURL( data) {
         this.setState({ label: data.value,saved:false });
     }
 
     updateJSONBox(e,data){
         this.setState({responseBody:data.value, saved:false})
+    }
+
+    updateHTTPMethod = (e,data) => {
+        this.setState({saved: false, HTTPMethod: data.text})
+
     }
 
     addResponseHeaderRow = () =>{
@@ -35,17 +43,29 @@ class ApiSection extends Component {
     handleDismiss = () => { }
 
     render() {
-        console.log(this.state)
         return (
             <div style={{marginBottom: '20px'}} >
+                
                 <Message
                     onDismiss={this.handleDismiss}
                     color={HTTPMethods.HTTPMethodColorsSection[this.state.HTTPMethod]} >
-                    <Input onChange={this.updateLabel}
+                    <Input onChange={this.updateEndpointURL}
                         value={this.state.endpoint}
-                        onChange={event => { this.setState({ query: event.target.value }) }}
+                        onChange={event => { this.setState({ saved: false, endpoint: event.target.value }) }}
                     />
-                    <span style={{ backgroundColor: HTTPMethods.HTTPMethodColors[this.state.HTTPMethod], color: 'white', padding: '7px', marginRight: '10px' }}>{this.state.HTTPMethod}</span>
+                    <Dropdown  
+                        text = {this.state.HTTPMethod} 
+                        button
+                        style={{ backgroundColor: HTTPMethods.HTTPMethodColors[this.state.HTTPMethod],  padding: '11px', color: 'white', marginRight: '10px' }}
+                    >
+                        <Dropdown.Menu>
+                        <Dropdown.Header content='Select HTTP Method' />
+                            <Dropdown.Divider />
+                            {Object.keys(HTTPMethods.HTTPMethodColors).map((HTTPMethod, i) =>{
+                                return <Dropdown.Item key = {i} onClick={this.updateHTTPMethod} text={HTTPMethod}/>
+                            })}
+                        </Dropdown.Menu>
+                    </Dropdown>
                     <Message
                             warning
                             header='Settings Not Saved'
@@ -77,7 +97,7 @@ class ApiSection extends Component {
                                 {this.state.responseHeaders.map((v,i) => {
                                     let headerKey = Object.keys(v)[0];
                                     return (
-                                    <Table.Row>
+                                    <Table.Row key={i}>
                                         <Table.Cell><Input fluid value={headerKey}/></Table.Cell>
                                         <Table.Cell><Input fluid value={v[headerKey]}/></Table.Cell>
                                         <Table.Cell icon="delete"></Table.Cell>

@@ -14,10 +14,12 @@ class NewGroupModal extends Component {
         this.props.setGroupModal(null, false);
     }
 
-    submitModal = ()  => {
+    submitModal = (e)  => {
+        console.log(e)
+        console.log("submit")
         this.removeModal();
-        
         this.props.onNewGroupModalSubmit(this.state.groupName);
+        
     }
 
    
@@ -27,17 +29,19 @@ class NewGroupModal extends Component {
         return (
             <Form onSubmit={this.submitModal}>
                 <Form.Input
+                    maxLength='15'
+                    required
                     label="Group Name"
                     placeholder='Group name'
                     onChange={(e) => this.setState({ groupName: e.target.value })}
                 />
                 <Divider/>
                 <div style ={{float:'right', padding:'20px'}}>
-                <Button color='red' onClick={this.removeModal}>
-                    <Icon name='remove' /> Cancel
-                </Button>
                 <Button color='green' type='submit'>
                     <Icon name='checkmark' /> Submit
+                </Button>
+                <Button color='red' onClick={this.removeModal}>
+                    <Icon name='remove' /> Cancel
                 </Button>
                 </div>
             </Form>

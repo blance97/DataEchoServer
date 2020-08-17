@@ -15,9 +15,11 @@ class LayoutContainer extends Component {
         // const endpoint = ExampleInputFile
 
         this.state = { error:{} ,groups: {}}
+
     }
 
     componentDidMount() {
+        toast.configure();
         this.getInitialSetup()
     }
 
@@ -27,23 +29,37 @@ class LayoutContainer extends Component {
         })
     }
 
+    editEndpoint = () => {
+        axios.post('/editEndpoint').then((res) =>{
+            console.log(res.data)
+        })
+    }
+
     addGroup = (groupName) => {
         this.setState({loading: true})
         axios.put('/addGroup', {name: groupName}).then((response) =>{
             this.setState({loading:false, groups: {...this.state.groups, ...response.data } });
         }).catch((err) =>{
-            this.setState({error: err.response.data.data})
+            this.setState({loading:false, error: err.response.data.data})
+            toast.error(this.state.error, {position: 'top-center', draggable: false})
+        })
+    }
+
+    addEndpoint = (endpointDetails, groupName) => {
+        this.setState({loading: true})
+        axios.post('/addEnpoiont', {name: groupName, endpointDetails}).then((response) =>{
+            console.log(response)
+            // this.setState({loading:false, groups: {...this.state.groups, ...response.data } });
+        }).catch((err) =>{
+            this.setState({loading:false, error: err.response.data.data})
             toast.configure();
             toast.error(this.state.error, {position: 'top-center', draggable: false})
         })
     }
 
-    addEndpoint = (endpoint, HTTPMethod, desc, groupName) => {
-
-    }
-
 
     render() {
+        console.log(this.state.groups)
         return (
 
             <Grid style={{marginLeft:'2px', marginTop:'2px'}} columns={3} divided>
@@ -51,7 +67,7 @@ class LayoutContainer extends Component {
               <Sidebar addGroup={this.addGroup} addEndpoint={this.addEndpoint}/>
             </Grid.Column>
             <Grid.Column width={8}>
-              <Dashboard endpoints={this.state.groups}/>
+              <Dashboard  addEndpoint={this.addEndpoint} endpoints={this.state.groups}/>
             </Grid.Column>
             <Grid.Column >
             <ServerLogs/>
