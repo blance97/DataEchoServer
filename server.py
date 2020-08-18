@@ -1,4 +1,4 @@
-from flask import request,Flask, jsonify
+from flask import request,Flask, jsonify, Response
 import json  
 import sqlite3
 app = Flask(__name__)
@@ -14,9 +14,16 @@ def response():
 
 @app.route('/<path:path>', methods=supportedMethods)
 def catch_all(path):
+
     endpoints = db.selectAllEndpoints()
-    print(("/" + path , request.method) in endpoints)
-    return 'You want path: %s' % path
+    for endpoint in endpoints:
+        if '/' + path == endpoint['endpoint'] and request.method == endpoint['HTTPMethod']:
+            Headers = {}
+            for rh in endpoint['responseHeaders']:
+                Headers[list(rh.keys())[0]] = list(rh.values())[0]
+            response = Response(response=endpoint['responseBody'], status=200, headers=Headers)
+            return response
+    return jsonify({"Error": "/{} with method: {} not found".format(path, request.method) }), 404
 
 @app.route("/getJSON", methods=['GET'])
 def getJSON():

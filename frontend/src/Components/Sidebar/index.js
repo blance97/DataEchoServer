@@ -8,6 +8,8 @@ class Sidebar extends Component {
     constructor(props) {
         super(props);
         this.state = { showNewAPIModal: false, showNewGroupModal: false }
+
+        this.fileInputRef = React.createRef();
     }
 
     setAPIModal(e, value) {
@@ -24,7 +26,11 @@ class Sidebar extends Component {
         
     }
 
-    upload = () => {}
+    upload = () => {
+        console.log("upload")
+        console.log(this.fileInputRef)
+         this.fileInputRef.current.click()
+    }
 
     onNewGroupModalSubmit = (groupName) => {
        console.log(groupName)
@@ -63,12 +69,18 @@ class Sidebar extends Component {
                     </Header>
                     <List.Item>
                         <List.Content>
-                            <Button primary fluid onClick={this.upload} ><Icon name='upload' />Export  </Button>
+                            <Button primary fluid onClick={this.upload} ><Icon name='upload' />Upload  </Button>
+                            <input
+                                ref={this.fileInputRef}
+                                type="file"
+                                hidden
+                                // onChange={this.fileChange}
+                            />
                         </List.Content>
                     </List.Item>
                     <List.Item>
                         <List.Content>
-                            <Button primary fluid><Icon name='download' />Import  </Button>
+                            <Button primary fluid><Icon name='download' />Export  </Button>
                         </List.Content>
                     </List.Item>
 

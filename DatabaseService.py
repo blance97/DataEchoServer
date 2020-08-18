@@ -4,7 +4,7 @@ class DatabaseService:
     def __init__(self, dbPath: str):
         self.conn = sqlite3.connect(dbPath, check_same_thread=False)
         self.setup()
-        print(self.selectAllEndpoints())
+        
     def setup(self):
         cur = self.conn.cursor()
         try:
@@ -54,35 +54,39 @@ class DatabaseService:
             for row in rows:
                 rowData = {'groupName':row[0],'groupId': row[1], 'endpoint':row[2], 'description': row[3], 'HTTPMethod':row[4], 'responseBodyType': row[5], 'responseBody': row[6] ,'headerKey': row[7], 'headerValue': row[8]}
 
-                
                 if rowData['groupId'] is None:
                     GeneratedJSON['groups'][rowData['groupName']] = []
                     continue
-        
+
                 if rowData['groupName'] not in GeneratedJSON['groups']:
                     GeneratedJSON['groups'][rowData['groupName']] = []
 
                 endpointDetails = GeneratedJSON['groups'][rowData['groupName']]
-                responseHeaders = {rowData['headerKey']: rowData['headerValue']}
-                if rowData['headerKey'] is None or rowData['headerValue'] is None:
-                    responseHeaders = {}
-       
-                convertedJSON = json.loads(rowData['responseBody'])
-                newEndpointInfo = {'endpoint': rowData['endpoint'], 'description': rowData['description'], 'HTTPMethod': rowData['HTTPMethod'], 'responseBodyType': rowData['responseBodyType'], 'responseBody': convertedJSON, "responseHeaders": [responseHeaders]}
-
-                insertNewRow = True
-                if len(endpointDetails) > 0:
-                    for i, detail in enumerate(endpointDetails):
-                        if rowData['endpoint'] ==  detail['endpoint'] and rowData['HTTPMethod'] == detail['HTTPMethod']:
-                            endpointDetails[i]['responseHeaders'].append({rowData['headerKey']: rowData['headerValue']})
-                            insertNewRow = False
-                
-                if insertNewRow:
-                    endpointDetails.append(newEndpointInfo)
+                self.addEndpointsToGroups(rowData, endpointDetails)
+               
             return GeneratedJSON
 
         except Exception as err:
             print(err)
+    
+    def addEndpointsToGroups(self, rowData: dict, endpointDetails: list) -> None:
+        responseHeaders = {rowData['headerKey']: rowData['headerValue']}
+        if rowData['headerKey'] is None or rowData['headerValue'] is None:
+            responseHeaders = {}
+
+        convertedJSON = json.loads(rowData['responseBody'])
+        newEndpointInfo = {'endpoint': rowData['endpoint'], 'description': rowData['description'], 'HTTPMethod': rowData['HTTPMethod'], 'responseBodyType': rowData['responseBodyType'], 'responseBody': convertedJSON, "responseHeaders": [responseHeaders]}
+
+        insertNewRow = True
+        if len(endpointDetails) > 0:
+            for i, detail in enumerate(endpointDetails):
+                if rowData['endpoint'] == detail['endpoint'] and rowData['HTTPMethod'] == detail['HTTPMethod']:
+                    endpointDetails[i]['responseHeaders'].append({rowData['headerKey']: rowData['headerValue']})
+                    insertNewRow = False
+        
+        if insertNewRow:
+            endpointDetails.append(newEndpointInfo)
+
 
     def clearGroupsTable(self):
         try:
@@ -209,12 +213,29 @@ class DatabaseService:
         except Exception as err:
             print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
         
-    def selectAllEndpoints(self) -> None:
+    def selectAllEndpoints(self) -> dict:
+        endpoints = []
         try:
             cur = self.conn.cursor()
-            sqlQuery = 'SELECT endpoint, HTTPMethod FROM EndpointDetails'
+            sqlQuery = 'SELECT * FROM Overview_VIEW'
             cur.execute(sqlQuery)
-            return cur.fetchall()
+            rows = cur.fetchall()
+            for row in rows:
+                rowData = {'groupName':row[0],'groupId': row[1], 'endpoint':row[2], 'description': row[3], 'HTTPMethod':row[4], 'responseBodyType': row[5], 'responseBody': row[6] ,'headerKey': row[7], 'headerValue': row[8]}
+                if not any( rowData['endpoint'] == endpoint['endpoint'] and rowData['HTTPMethod'] == endpoint['HTTPMethod'] for endpoint in endpoints):
+                    del rowData['groupName']
+                    del rowData['groupId']
+                    headerKey = rowData.pop('headerKey')
+                    headerValue = rowData.pop('headerValue')
+                    rowData['responseBody'] = json.loads(rowData['responseBody'])
+                    rowData['responseHeaders'] = [{headerKey:headerValue}]
+                    endpoints.append(rowData)
+                else:
+                    responseHeader = {rowData['headerKey']: rowData['headerValue']}
+                    index = next((index for index, item in enumerate(endpoints) if rowData['endpoint'] == item['endpoint'] and rowData['HTTPMethod'] == item['HTTPMethod']), None)
+                    endpoints[index]['responseHeaders'].append(responseHeader)
+
+            return endpoints
         except Exception as err:
             print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
 
