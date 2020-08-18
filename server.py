@@ -9,12 +9,10 @@ supportedMethods = ['GET', 'POST','DELETE','PUT']
 
 @app.route("/*", methods=supportedMethods)
 def response():
-   
     return "Hello, World!"
 
 @app.route('/<path:path>', methods=supportedMethods)
 def catch_all(path):
-
     endpoints = db.selectAllEndpoints()
     for endpoint in endpoints:
         if '/' + path == endpoint['endpoint'] and request.method == endpoint['HTTPMethod']:
@@ -25,12 +23,12 @@ def catch_all(path):
             return response
     return jsonify({"Error": "/{} with method: {} not found".format(path, request.method) }), 404
 
-@app.route("/getJSON", methods=['GET'])
+@app.route("/api/DES/getJSON", methods=['GET'])
 def getJSON():
     formattedDict = db.generateFormattedDictionary()
     return jsonify(formattedDict)
 
-@app.route("/loadJSON", methods=['POST'])
+@app.route("/api/DES/loadJSON", methods=['POST'])
 def loadJSON():
     try:
         db.loadFormattedJSON({ 
@@ -68,7 +66,7 @@ def loadJSON():
     return jsonify({'message':'Succesfully uploaded JSON to DB'})
 
 
-@app.route("/addGroup", methods=['PUT'])
+@app.route("/api/DES/addGroup", methods=['PUT'])
 def addGroup():
     content = request.get_json()
     groupName = content['name']
