@@ -7,7 +7,7 @@ class ApiSection extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { accordionOpen : false, saved: true, ...this.props.endpointDetails}
+        this.state = { accordionOpen : false,originalEndpoint: this.props.endpointDetails.endpoint, saved: true, ...this.props.endpointDetails}
         this.updateEndpointURL = this.updateEndpointURL.bind(this);
         this.toggleAccordion = this.toggleAccordion.bind(this);
         this.updateJSONBox = this.updateJSONBox.bind(this)
@@ -24,7 +24,7 @@ class ApiSection extends Component {
     }
 
     updateEndpointURL( data) {
-        this.setState({ label: data.value,saved:false });
+        this.setState({ label: data.value, originalEndpoint: "",saved:false });
     }
 
     updateJSONBox(e,data){
@@ -109,7 +109,7 @@ class ApiSection extends Component {
                             <Button onClick={this.addResponseHeaderRow}>Add </Button>    
                             <h3>Response Body <span style={{ backgroundColor:'grey', color: "white", padding: '3px' }}>{this.state.responseBodyType}</span></h3>
                             <Form.Group>
-                                <TextArea style={{width: '50%', marginTop:'15px'}} placeholder='JSON Response...' value={this.state.responseBody} onChange={this.updateJSONBox} />
+                                <TextArea style={{width: '50%', marginTop:'15px'}} placeholder='JSON Response...' value={String(this.state.responseBody)} onChange={this.updateJSONBox} />
                                 <JSONPretty style={{width: '50%'}} data={this.state.responseBody}></JSONPretty>
                             </Form.Group>
                             </Form>

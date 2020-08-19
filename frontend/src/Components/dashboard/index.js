@@ -16,12 +16,9 @@ class Dashboard extends Component {
     }
 
     addEndpoint(groupName) {
-        console.log(groupName)
         let addedEndpoint = this.state.endpoints
-        addedEndpoint[groupName] = [...addedEndpoint[groupName],{HTTPMethod: "", description: "", endpoint: "", responseBody: "{}", responseBodyType:"",responseHeaders: []}]
-        console.log(addedEndpoint)
+        addedEndpoint[groupName] = [...addedEndpoint[groupName],{groupName, HTTPMethod: "", description: "", endpoint: "", responseBody: "{}", responseBodyType:"",responseHeaders: []}]
         this.setState({endpoints: addedEndpoint});
-        console.log(this.state)
         // this.props.addEndpoint(groupName)
     }
     
@@ -49,10 +46,11 @@ class Dashboard extends Component {
   onSave(data) {
     const {groupName, index} = data;
     let newEndpointDetails = data;
-    delete newEndpointDetails['groupName']
+    newEndpointDetails['groupName']
     delete newEndpointDetails['accordionOpen']
     delete newEndpointDetails['index']
-    this.props.endpoints[groupName][index] = newEndpointDetails;
+    console.log(groupName)
+    // this.props.endpoints[groupName][index] = newEndpointDetails;
     console.log(newEndpointDetails)
   }
 

@@ -24,20 +24,20 @@ class LayoutContainer extends Component {
     }
 
     getInitialSetup = () => {
-        axios.get('/api/DES/getJSON').then((res) =>{
+        axios.get('/getJSON').then((res) =>{
             this.setState({groups: res.data['groups']})
         })
     }
 
     editEndpoint = () => {
-        axios.post('/api/DES/editEndpoint').then((res) =>{
+        axios.post('/editEndpoint').then((res) =>{
             console.log(res.data)
         })
     }
 
     addGroup = (groupName) => {
         this.setState({loading: true})
-        axios.put('/api/DES/addGroup', {name: groupName}).then((response) =>{
+        axios.put('/addGroup', {name: groupName}).then((response) =>{
             this.setState({loading:false, groups: {...this.state.groups, ...response.data } });
         }).catch((err) =>{
             this.setState({loading:false, error: err.response.data.data})
@@ -47,7 +47,7 @@ class LayoutContainer extends Component {
 
     addEndpoint = (endpointDetails, groupName) => {
         this.setState({loading: true})
-        axios.post('/api/DES/addEnpoiont', {name: groupName, endpointDetails}).then((response) =>{
+        axios.post('/addEnpoiont', {name: groupName, endpointDetails}).then((response) =>{
             console.log(response)
             // this.setState({loading:false, groups: {...this.state.groups, ...response.data } });
         }).catch((err) =>{
