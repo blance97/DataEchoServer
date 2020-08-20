@@ -7,7 +7,7 @@ class ApiSection extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { accordionOpen : false,originalEndpoint: this.props.endpointDetails.endpoint, saved: true, ...this.props.endpointDetails}
+        this.state = { accordionOpen : false,originalEndpoint: this.props.endpointDetails.endpoint, originalHTTPMethod: this.props.endpointDetails.HTTPMethod, saved: true, ...this.props.endpointDetails}
         this.updateEndpointURL = this.updateEndpointURL.bind(this);
         this.toggleAccordion = this.toggleAccordion.bind(this);
         this.updateJSONBox = this.updateJSONBox.bind(this)
@@ -38,6 +38,13 @@ class ApiSection extends Component {
 
     addResponseHeaderRow = () =>{
         this.setState({responseHeaders: [...this.state.responseHeaders, {}]})
+    }
+
+    onSave = () => {
+        if(!this.state.saved){
+            this.props.onSave(this.state)
+            this.setState({saved: true})
+        }
     }
 
     handleDismiss = () => { }
@@ -116,8 +123,7 @@ class ApiSection extends Component {
                         </Accordion.Content>
                     </Accordion>
                     <div style={{paddingTop: '20px'}}>
-                    <Button>Cancel</Button>
-                    <Button primary onClick={() => this.props.onSave( this.state)}>Save</Button>
+                    <Button primary onClick={this.onSave}>Save</Button>
                     </div>
                 </Message>
 

@@ -29,9 +29,11 @@ class LayoutContainer extends Component {
         })
     }
 
-    editEndpoint = () => {
-        axios.post('/editEndpoint').then((res) =>{
-            console.log(res.data)
+    editEndpoint = (endpointDetails) => {
+        axios.post('/editEndpoint', endpointDetails).then((res) =>{
+            toast.success(`Succesfully updated endpoint`)
+        }).catch((err) =>{
+            toast.error(err)
         })
     }
 
@@ -67,7 +69,7 @@ class LayoutContainer extends Component {
               <Sidebar addGroup={this.addGroup} addEndpoint={this.addEndpoint}/>
             </Grid.Column>
             <Grid.Column width={8}>
-              <Dashboard  addEndpoint={this.addEndpoint} endpoints={this.state.groups}/>
+              <Dashboard  addEndpoint={this.addEndpoint} editEndpoint={this.editEndpoint} endpoints={this.state.groups}/>
             </Grid.Column>
             <Grid.Column >
             <ServerLogs/>

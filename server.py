@@ -5,7 +5,7 @@ app = Flask(__name__)
 from DatabaseService import DatabaseService
 
 supportedMethods = ['GET', 'POST','DELETE','PUT']
-
+protectedPaths = [{'api':'/api/DES/getJSON', 'method':'get' },{'api': '/api/DES/loadJSON', 'method':'post' }, {'api':'/api/DES/addGroup', 'method':'put'} ]
 
 @app.route("/*", methods=supportedMethods)
 def response():
@@ -13,6 +13,8 @@ def response():
 
 @app.route('/<path:path>', methods=supportedMethods)
 def catch_all(path):
+    if '/' + path in protectedPaths:
+        return jsonify({'Error': '/'})
     endpoints = db.selectAllEndpoints()
     for endpoint in endpoints:
         if '/' + path == endpoint['endpoint'] and request.method == endpoint['HTTPMethod']:
@@ -77,6 +79,22 @@ def addGroup():
     try:
         db.insertNewGroup(groupName)
         response = {groupName: []}
+    except Exception as err:
+        return jsonify({"Error": str(err)}), 400
+    return jsonify(response)
+
+@app.route("/api/DES/editEndpoint", methods=['POST'])
+def editEndpoint():
+    content = request.get_json()
+    response = {}
+    print(content)
+    try:
+        responseHeaders = content.pop('responseHeaders', None)
+        print(responseHeaders)
+        originalEndpoint = content.pop('originalEndpoint')
+        orignalHTTPMethod = content.pop('originalHTTPMethod')
+        db.updateEndpoint(originalEndpoint,orignalHTTPMethod, content)
+        response = content
     except Exception as err:
         return jsonify({"Error": str(err)}), 400
     return jsonify(response)

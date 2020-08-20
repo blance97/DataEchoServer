@@ -4,7 +4,7 @@ class DatabaseService:
     def __init__(self, dbPath: str):
         self.conn = sqlite3.connect(dbPath, check_same_thread=False)
         self.setup()
-        
+
     def setup(self):
         cur = self.conn.cursor()
         try:
@@ -207,11 +207,12 @@ class DatabaseService:
             cur = self.conn.cursor()
             sqlQuery = '''UPDATE EndpointDetails SET endpoint = ?, description = ?, HTTPMethod = ?, responseBodyType = ?, responseBody = ? WHERE endpoint = ? AND HTTPMethod= ?'''
 
-            values = tuple([newEndpointDetails['endpoint'], newEndpointDetails['description'], newEndpointDetails['HTTPMethod'], newEndpointDetails['responseBodyType'], newEndpointDetails['responseBody'], endpoint, HTTPMethod])
+            values = tuple([newEndpointDetails['endpoint'], newEndpointDetails['description'], newEndpointDetails['HTTPMethod'], newEndpointDetails['responseBodyType'], json.dumps(newEndpointDetails['responseBody']), endpoint, HTTPMethod])
             cur.execute(sqlQuery, values)
             self.conn.commit()
         except Exception as err:
             print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
+            raise Exception(err)
         
     def selectAllEndpoints(self) -> dict:
         endpoints = []

@@ -50,6 +50,7 @@ class Dashboard extends Component {
     delete newEndpointDetails['accordionOpen']
     delete newEndpointDetails['index']
     console.log(groupName)
+    this.props.editEndpoint(newEndpointDetails);
     // this.props.endpoints[groupName][index] = newEndpointDetails;
     console.log(newEndpointDetails)
   }
