@@ -87,13 +87,18 @@ def addGroup():
 def editEndpoint():
     content = request.get_json()
     response = {}
-    print(content)
     try:
         responseHeaders = content.pop('responseHeaders', None)
+        print(content)
         print(responseHeaders)
         originalEndpoint = content.pop('originalEndpoint')
         orignalHTTPMethod = content.pop('originalHTTPMethod')
         db.updateEndpoint(originalEndpoint,orignalHTTPMethod, content)
+        db.deleteResponseHeadersEnpoint(content['endpoint'],content['HTTPMethod'])
+        if len(responseHeaders) > 10:
+            return jsonify({"Error": 'Limit number of headers to 10'}), 400
+        for val in responseHeaders:
+            db.insertResponseHeaders(content['endpoint'], content['HTTPMethod'], val)
         response = content
     except Exception as err:
         return jsonify({"Error": str(err)}), 400

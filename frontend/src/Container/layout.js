@@ -30,10 +30,11 @@ class LayoutContainer extends Component {
     }
 
     editEndpoint = (endpointDetails) => {
+        console.log("hey?")
         axios.post('/editEndpoint', endpointDetails).then((res) =>{
             toast.success(`Succesfully updated endpoint`)
         }).catch((err) =>{
-            toast.error(err)
+            toast.error( err.response.data.Error)
         })
     }
 
@@ -54,7 +55,6 @@ class LayoutContainer extends Component {
             // this.setState({loading:false, groups: {...this.state.groups, ...response.data } });
         }).catch((err) =>{
             this.setState({loading:false, error: err.response.data.data})
-            toast.configure();
             toast.error(this.state.error, {position: 'top-center', draggable: false})
         })
     }

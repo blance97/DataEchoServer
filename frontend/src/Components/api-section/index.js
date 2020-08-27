@@ -37,14 +37,29 @@ class ApiSection extends Component {
     }
 
     addResponseHeaderRow = () =>{
-        this.setState({responseHeaders: [...this.state.responseHeaders, {}]})
+        this.setState({saved:false ,responseHeaders: [...this.state.responseHeaders, {}]})
     }
 
     onSave = () => {
-        if(!this.state.saved){
             this.props.onSave(this.state)
             this.setState({saved: true})
-        }
+    }
+
+    updateKey(index,val, responseHeaderValue) {
+        const rh = this.state.responseHeaders.slice();
+        rh[index] = {[val.value]: responseHeaderValue}
+        this.setState({responseHeaders: rh,saved:false})
+    }
+
+    updateValue(index,val, responseHeader) {
+        const rh = this.state.responseHeaders.slice();
+        rh[index] = {[responseHeader]:val.value}
+        this.setState({responseHeaders: rh,saved:false})
+    }
+
+    deleteResponseHeader(index) {
+        const newArray =  [...this.state.responseHeaders.slice(0,index), ...this.state.responseHeaders.slice(index+1)]
+        this.setState({responseHeaders:newArray, saved:false})
     }
 
     handleDismiss = () => { }
@@ -102,12 +117,12 @@ class ApiSection extends Component {
                                 <Table.Body>
                             
                                 {this.state.responseHeaders.map((v,i) => {
-                                    let headerKey = Object.keys(v)[0];
+                                    let headerKey =  Object.keys(v)[0];
                                     return (
                                     <Table.Row key={i}>
-                                        <Table.Cell><Input fluid value={headerKey}/></Table.Cell>
-                                        <Table.Cell><Input fluid value={v[headerKey]}/></Table.Cell>
-                                        <Table.Cell icon="delete"></Table.Cell>
+                                        <Table.Cell><Input fluid value={headerKey} onChange={(e, val) => this.updateKey(i, val, v[headerKey])}/></Table.Cell>
+                                        <Table.Cell><Input fluid value={v[headerKey]} onChange={(e, val) => this.updateValue(i, val, headerKey)}/></Table.Cell>
+                                        <Table.Cell icon="delete" onClick={(e) =>{this.deleteResponseHeader(i)}}></Table.Cell>
                                     </Table.Row>)
                                 })}
                             

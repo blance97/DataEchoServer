@@ -29,6 +29,7 @@ class DatabaseService:
                         HTTPMethod VARCHAR(12) NOT NULL,
                         key TEXT,
                         value TEXT,
+                        PRIMARY KEY(endpoint,HTTPMethod, key)
                         FOREIGN KEY(endpoint,HTTPMethod) REFERENCES EndpointDetails(endpoint, HTTPMethod) ON DELETE CASCADE ON UPDATE CASCADE)
                     ''')
 
@@ -254,28 +255,27 @@ class DatabaseService:
         else:
             print('Group ID not found')
     
+    def deleteResponseHeadersEnpoint(self, endpoint:str, HTTPMethod) -> None:
+        try:
+            cur = self.conn.cursor()
+            sqlQuery = 'DELETE FROM ResponseHeaders WHERE endpoint=? and HTTPMethod=?'
+            sqlValues = tuple([endpoint, HTTPMethod])
+            cur.execute(sqlQuery, sqlValues)
+            self.conn.commit()
+        except Exception as err:
+            print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
+
     def insertResponseHeaders(self, endpoint: str, HTTPMethod: str, headers: dict) -> None:
         try:
             cur = self.conn.cursor()
-            sqlQuery = 'INSERT INTO ResponseHeaders (endpoint, HTTPMethod, key, value) values(?,?,?,?)'
+            sqlQuery = '''INSERT INTO ResponseHeaders (endpoint, HTTPMethod,key, value) VALUES(?,?,?,?)'''
             key = tuple(headers.keys())[0]
             value = tuple(headers.values())[0]
             headers = tuple([endpoint, HTTPMethod, key, value])
             cur.execute(sqlQuery, headers)
             self.conn.commit()
         except Exception as err:
-            print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
-
-    def updateResponseHeaders(self, endpoint: str, HTTPMethod: str, headers: dict) -> None:
-        try:
-            cur = self.conn.cursor()
-            sqlQuery = 'UPDATE ResponseHeaders SET key = ?, value=? WHERE endpoint = ? AND HTTPMethod=?'
-            key = tuple(headers.keys())[0]
-            value = tuple(headers.values())[0]
-            sqlValues = tuple([key, value, endpoint, HTTPMethod])
-            cur.execute(sqlQuery, sqlValues)
-            self.conn.commit()
-        except Exception as err:
+            raise Exception(err)
             print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
 
     def deleteResponseHeaders(self, endpoint: str, HTTPMethod: str, headers: dict) -> None:
