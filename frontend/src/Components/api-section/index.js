@@ -62,9 +62,23 @@ class ApiSection extends Component {
         this.setState({responseHeaders:newArray, saved:false})
     }
 
-    handleDismiss = () => { }
+    handleDismiss = () => {
+        const {index, groupName, endpoint, HTTPMethod} = this.state
+        this.props.removeEndpoint(index, groupName, endpoint, HTTPMethod)
+     }
+
+     componentDidUpdate(prevProps) {
+        if(prevProps.endpointDetails.HTTPMethod !== this.props.endpointDetails.HTTPMethod){
+            console.log(this.props)
+            this.setState({endpointDetails: this.props.endpointDetails},()=>{
+                console.log(this.state)
+            })
+
+        }
+      }
 
     render() {
+        // console.log(this.props)
         return (
             <div style={{marginBottom: '20px'}} >
                 

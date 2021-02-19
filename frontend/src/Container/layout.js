@@ -1,36 +1,26 @@
 import React, { Component } from 'react'
-import {  Grid, Message } from 'semantic-ui-react'
-import Sidebar from '../Components/Sidebar';
+import {  FormInput, Grid, Message } from 'semantic-ui-react'
+import Sidebar from './Sidebar';
 import Dashboard from '../Components/dashboard';
-import ServerLogs from '../Components/server-logs'
-import ExampleInputFile from '../static/data/ExampleInputFile'
+import ServerLogs from '../Components/server-logs';
+
 import axios from 'axios';
+import { addHTTPEndpoint } from '../store/side-bar/actions';
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { connect } from 'react-redux';
 
 class LayoutContainer extends Component {
 
     constructor(props) {
         super(props);
-
-        // const endpoint = ExampleInputFile
-
         this.state = { error:{} ,groups: {}}
-
     }
 
-    componentDidMount() {
-        toast.configure();
-        this.getInitialSetup()
-    }
 
-    getInitialSetup = () => {
-        axios.get('/getJSON').then((res) =>{
-            this.setState({groups: res.data['groups']})
-        })
-    }
+
 
     editEndpoint = (endpointDetails) => {
-        console.log("hey?")
         axios.post('/editEndpoint', endpointDetails).then((res) =>{
             toast.success(`Succesfully updated endpoint`)
         }).catch((err) =>{
@@ -48,10 +38,9 @@ class LayoutContainer extends Component {
         })
     }
 
-    addEndpoint = (endpointDetails, groupName) => {
-        this.setState({loading: true})
-        axios.post('/addEnpoiont', {name: groupName, endpointDetails}).then((response) =>{
-            console.log(response)
+    removeGroup = (groupName, HTTPMethod, endpointString) => {
+        axios.delete('/removeGroup', {name: groupName, HTTPMethod, endpointString}).then((res) =>{
+            console.log(res)
             // this.setState({loading:false, groups: {...this.state.groups, ...response.data } });
         }).catch((err) =>{
             this.setState({loading:false, error: err.response.data.data})
@@ -60,23 +49,42 @@ class LayoutContainer extends Component {
     }
 
 
-    render() {
-        console.log(this.state.groups)
-        return (
 
+    render() {
+        return (
+           <div>
+                 <ToastContainer/>
             <Grid style={{marginLeft:'2px', marginTop:'2px'}} columns={3} divided>
             <Grid.Column width={2}>
-              <Sidebar addGroup={this.addGroup} addEndpoint={this.addEndpoint}/>
+              <Sidebar fetchTemplateFromApp={this.props.fetchTemplateFromApp} addGroup={this.addGroup} addEndpoint={this.props.addHTTPEndpoint}/>
             </Grid.Column>
             <Grid.Column width={8}>
-              <Dashboard  addEndpoint={this.addEndpoint} editEndpoint={this.editEndpoint} endpoints={this.state.groups}/>
+              <Dashboard  addEndpoint={this.props.addEndpoint} editEndpoint={this.editEndpoint} removeEndpoint={this.removeEndpoint} endpoints={this.props.jsonData.groups}/>
             </Grid.Column>
             <Grid.Column >
             <ServerLogs/>
           </Grid.Column>
           </Grid>
+         
+           </div>
         );
     }
 }
 
-export default LayoutContainer
+function mapStateToProps(state) {
+    return{
+        jsonData: state.sideBar.jsonData
+    }
+}
+
+function mapDispatchToProps(dispatch){
+    return ({
+        fetchTemplateFromApp: () => {dispatch(fetchTemplateFromApp())},
+        addEndpoint: (HTTPEndpointDetails) => {dispatch(addHTTPEndpoint(HTTPEndpointDetails))}
+    })
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+) (LayoutContainer)

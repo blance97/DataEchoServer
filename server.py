@@ -16,6 +16,7 @@ def catch_all(path):
     if '/' + path in protectedPaths:
         return jsonify({'Error': '/'})
     endpoints = db.selectAllEndpoints()
+    print(endpoints)
     for endpoint in endpoints:
         if '/' + path == endpoint['endpoint'] and request.method == endpoint['HTTPMethod']:
             Headers = {}
@@ -30,7 +31,7 @@ def getJSON():
     formattedDict = db.generateFormattedDictionary()
     return jsonify(formattedDict)
 
-@app.route("/api/DES/loadJSON", methods=['POST'])
+@app.route("/api/DES/loadJSON", methods=['PUT'])
 def loadJSON():
     try:
         db.loadFormattedJSON({ 
@@ -94,16 +95,51 @@ def editEndpoint():
         originalEndpoint = content.pop('originalEndpoint')
         orignalHTTPMethod = content.pop('originalHTTPMethod')
         db.updateEndpoint(originalEndpoint,orignalHTTPMethod, content)
-        db.deleteResponseHeadersEnpoint(content['endpoint'],content['HTTPMethod'])
+
+        if len(responseHeaders) > 10:
+            return jsonify({"Error": 'Limit number of headers to 10'}), 400
+        for val in responseHeaders:
+            db.deleteResponseHeadersEndpoint(content['endpoint'],content['HTTPMethod'])
+            db.insertResponseHeaders(content['endpoint'], content['HTTPMethod'], val)
+        response = content
+
+    except Exception as err:
+        return jsonify({"Error": str(err)}), 400
+    return jsonify(response)
+
+@app.route("/api/DES/addEndpoint", methods=['POST'])
+def addEndpoint():
+    content = request.get_json()
+    response = {}
+    try:
+        content['endpoint'] = content['endpoint'].strip()
+        
+        if len(content['endpoint']) < 1 or len(content['HTTPMethod']) < 1: #Just making sure that the endpoint and http methods are defined
+            return jsonify({"Error": 'Endpoint Name or HTTPMethod or both are undefined'}), 400
+
+        if content['endpoint'].endswith('/') and len(content['endpoint']) > 1:
+            printf('removing ending / on string {}', content['endpoint'])
+            content['endpoint'] = content['endpoint'][:-1]
+        groupName = content.pop('groupName', None)
+        responseHeaders = content.pop('responseHeaders', None)
+        print(content)
+
+
+        db.insertEndpoint(groupName, content)
         if len(responseHeaders) > 10:
             return jsonify({"Error": 'Limit number of headers to 10'}), 400
         for val in responseHeaders:
             db.insertResponseHeaders(content['endpoint'], content['HTTPMethod'], val)
+
+        content['groupName'] = groupName
+        content['responseHeaders'] = responseHeaders
+        content.pop('groupId', None)
         response = content
+  
     except Exception as err:
         return jsonify({"Error": str(err)}), 400
     return jsonify(response)
-    
+        
 if __name__ == "__main__":
     db = DatabaseService('db/EchoServer.db')
     app.run(debug=True)

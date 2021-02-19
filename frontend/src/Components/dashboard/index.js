@@ -1,14 +1,17 @@
 import React, { Component } from 'react'
 import {  Accordion, Icon, Segment, Header, Button, Divider } from 'semantic-ui-react'
 import ApiSection from '../api-section';
+import Axios from 'axios';
 
 class Dashboard extends Component {
 
     constructor(props) {
         super(props);
+        console.log(props);
         this.state = { activeIndexs: [], endpoints: {} }
 
         this.onSave = this.onSave.bind(this);
+        this.removeEndpoint = this.removeEndpoint.bind(this);
     }
 
     changeActiveSegment(e, data) {
@@ -19,7 +22,19 @@ class Dashboard extends Component {
         let addedEndpoint = this.state.endpoints
         addedEndpoint[groupName] = [...addedEndpoint[groupName],{groupName, HTTPMethod: "", description: "", endpoint: "", responseBody: "{}", responseBodyType:"",responseHeaders: []}]
         this.setState({endpoints: addedEndpoint});
-        // this.props.addEndpoint(groupName)
+    }
+
+    removeEndpoint(index, groupName, HTTPMethod, endpointString) {
+        console.log(index)
+        const updatedEndpoints = this.state.endpoints[groupName].filter((row,i) =>{
+            if(i !== index){
+                return row 
+            }
+        })
+        console.log(updatedEndpoints)
+        this.state.endpoints[groupName] = updatedEndpoints
+        this.setState({endpoint: this.state.endpoints})
+        this.forceUpdate()
     }
     
     handleClick = (e, titleProps) => {
@@ -50,7 +65,7 @@ class Dashboard extends Component {
     delete newEndpointDetails['accordionOpen']
     delete newEndpointDetails['index']
     console.log(groupName)
-    this.props.editEndpoint(newEndpointDetails);
+    this.props.addEndpoint(newEndpointDetails);
     console.log(newEndpointDetails)
   }
 
@@ -70,7 +85,9 @@ class Dashboard extends Component {
                             <Button primary fluid onClick={() => this.addEndpoint(group)} > <Icon name="add"></Icon>Add HTTP Request</Button>
                             <Divider/>
                         {this.state.endpoints[group].map((endpointDetails, i) => {
-                            return <ApiSection key={i} onSave={this.onSave} endpointDetails={{...endpointDetails, groupName: group, index: i} }/>
+                            return (
+                            <ApiSection key={i} onSave={this.onSave} removeEndpoint={this.removeEndpoint} endpointDetails={{...endpointDetails, groupName: group, index: i} }/>
+                            )
                         })}
                     </Accordion.Content> 
                 </Accordion>)

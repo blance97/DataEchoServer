@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import { List, Header, Icon, Button, Modal, Divider } from 'semantic-ui-react'
-import NewAPIModal from '../new-api-modal';
-import NewGroupModal from '../new-group-modal';
-import { ToastContainer, toast } from 'react-toastify';
+import { List, Header, Icon, Button, Modal, Divider, Form } from 'semantic-ui-react'
+import NewAPIModal from '../../Components/new-api-modal';
+import NewGroupModal from '../../Components/new-group-modal';
+import { connect } from 'react-redux';
+import {fetchTemplateFromApp, addHTTPEndpoint} from '../../store/side-bar/actions';
+
 class Sidebar extends Component {
 
     constructor(props) {
@@ -12,8 +14,8 @@ class Sidebar extends Component {
         this.fileInputRef = React.createRef();
     }
 
-    setAPIModal(e, value) {
-        e.stopPropagation();
+    setAPIModal( value) {
+        console.log(value);
         this.setState({ showNewAPIModal: value });
     }
 
@@ -21,15 +23,16 @@ class Sidebar extends Component {
         this.setState({ showNewGroupModal: value });
     }
 
-    modalSubmit = (e,data) => {
+    modalSubmit = (data) => {
         console.log(data);
-        
+        this.props.addEndpoint(data);
     }
 
     upload = () => {
-        console.log("upload")
+        console.log(this.props.fetchTemplateFromApp())
         console.log(this.fileInputRef)
-         this.fileInputRef.current.click()
+        this.props.fetchTemplateFromApp();
+        // this.fileInputRef.current.click()
     }
 
     onNewGroupModalSubmit = (groupName) => {
@@ -37,7 +40,10 @@ class Sidebar extends Component {
         this.props.addGroup(groupName)
     }
 
+ 
     render() {
+
+        const groups = this.props.jsonData.groups? Object.keys(this.props.jsonData.groups) : [];
         return (
             <div>
                 <List divided>
@@ -87,16 +93,8 @@ class Sidebar extends Component {
                 </List>
                 <Modal open={this.state.showNewAPIModal} onClose={(e) => this.setAPIModal(e, false)}>
                     <Modal.Content>
-                        <NewAPIModal onModalSubmit={this.modalSubmit} />
+                        <NewAPIModal groups={groups} modalExit={() => this.setAPIModal(false)} onModalSubmit={this.modalSubmit} />
                     </Modal.Content>
-                    <Modal.Actions>
-                        <Button color='red' onClick={(e) => this.setAPIModal(e, false)}>
-                            <Icon name='remove' /> Cancel
-                        </Button>
-                        <Button color='green' onClick={(e) => this.setAPIModal(e, true)}>
-                            <Icon name='checkmark' /> Submit
-                        </Button>
-                    </Modal.Actions>
                 </Modal>
 
                 <Modal open={this.state.showNewGroupModal} onClose={(e) => this.setGroupModal(e, false)}>
@@ -110,4 +108,20 @@ class Sidebar extends Component {
     }
 }
 
-export default Sidebar
+function mapStateToProps(state){
+    return{
+        jsonData: state.sideBar.jsonData
+    }
+}
+
+function mapDispatchToProps(dispatch){
+    return ({
+        fetchTemplateFromApp: () => {dispatch(fetchTemplateFromApp())},
+        addEndpoint: (HTTPEndpointDetails) => {dispatch(addHTTPEndpoint(HTTPEndpointDetails))}
+    })
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+) (Sidebar)

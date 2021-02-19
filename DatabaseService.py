@@ -19,7 +19,7 @@ class DatabaseService:
                         description TEXT,
                         HTTPMethod VARCHAR(12) NOT NULL,
                         responseBodyType VARCHAR(32) NOT NULL,
-                        responseBody text NOT NULL,
+                        responseBody text,
                         PRIMARY KEY( endpoint, HTTPMethod)
                         FOREIGN KEY(groupID) REFERENCES Groups(id) ON DELETE CASCADE )
             ''')
@@ -190,6 +190,7 @@ class DatabaseService:
 
     def insertEndpoint(self, groupName: str, endpointDetails: dict) -> None:
         groupId = self.getGroupID(groupName)
+        print(groupId)
         if groupId > 0:
             try:
                 cur = self.conn.cursor()
@@ -200,12 +201,15 @@ class DatabaseService:
                 self.conn.commit()
             except Exception as err:
                 print('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
+                raise Exception('Query Failed: {} \nError:{}'.format(sqlQuery,str(err)))
         else:
             print('Group ID not found')
+            raise Exception("Group name not found")
     
     def updateEndpoint(self, endpoint: str, HTTPMethod: str,  newEndpointDetails: dict) -> None:
         try:
             cur = self.conn.cursor()
+            # sqlQuery = 'INSERT INTO EndpointDetails ( endpoint, description, HTTPMethod, responseBodyType, responseBody,groupId) values(?,?,?,?,?,?) ON CONFLICT DO UPDATE SET SET endpoint = ?, description = ?, HTTPMethod = ?, responseBodyType = ?, responseBody = ? WHERE endpoint = ? AND HTTPMethod= ?' 
             sqlQuery = '''UPDATE EndpointDetails SET endpoint = ?, description = ?, HTTPMethod = ?, responseBodyType = ?, responseBody = ? WHERE endpoint = ? AND HTTPMethod= ?'''
 
             values = tuple([newEndpointDetails['endpoint'], newEndpointDetails['description'], newEndpointDetails['HTTPMethod'], newEndpointDetails['responseBodyType'], json.dumps(newEndpointDetails['responseBody']), endpoint, HTTPMethod])
@@ -222,6 +226,7 @@ class DatabaseService:
             sqlQuery = 'SELECT * FROM Overview_VIEW'
             cur.execute(sqlQuery)
             rows = cur.fetchall()
+            print(rows)
             for row in rows:
                 rowData = {'groupName':row[0],'groupId': row[1], 'endpoint':row[2], 'description': row[3], 'HTTPMethod':row[4], 'responseBodyType': row[5], 'responseBody': row[6] ,'headerKey': row[7], 'headerValue': row[8]}
                 if not any( rowData['endpoint'] == endpoint['endpoint'] and rowData['HTTPMethod'] == endpoint['HTTPMethod'] for endpoint in endpoints):
@@ -255,7 +260,7 @@ class DatabaseService:
         else:
             print('Group ID not found')
     
-    def deleteResponseHeadersEnpoint(self, endpoint:str, HTTPMethod) -> None:
+    def deleteResponseHeadersEndpoint(self, endpoint:str, HTTPMethod) -> None:
         try:
             cur = self.conn.cursor()
             sqlQuery = 'DELETE FROM ResponseHeaders WHERE endpoint=? and HTTPMethod=?'
