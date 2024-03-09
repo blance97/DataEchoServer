@@ -1,0 +1,44 @@
+{
+  "groups": [
+    {
+      "name": "Group1",
+      "description": "Description for Group1",
+      "apiDetails": [
+        {
+          "api_name": "/api/endpoint1",
+          "api_method": "GET",
+          "api_response_body": "Response body for endpoint1",
+          "api_response_code": 200,
+          "responseHeaders": [
+            {
+              "header_name": "Content-Type",
+              "header_value": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Group2",
+      "description": "Description for Group2",
+      "apiDetails": [
+        {
+          "api_name": "/api/endpoint2",
+          "api_method": "POST",
+          "api_response_body": "Response body for endpoint2",
+          "api_response_code": 400,
+          "responseHeaders": [
+            {
+              "header_name": "Content-Type",
+              "header_value": "application/json"
+            },
+            {
+              "header_name": "Authorization",
+              "header_value": "Bearer xyz123"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
