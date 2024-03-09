@@ -169,8 +169,24 @@ const deleteResponseHeaders = async (req: Request, res: Response) => {
 
 }
 
+const updateResponseHeaders = async (req: Request, res: Response) => {
+    const headerId: number = Number(req.params.headerId);
+    try {
+        const {headerName, headerValue} = req.body;
+        if (!headerId || !headerName || !headerValue) return res.status(400).json(new ResponseModel('error', 'Invalid request'));
+
+        await responseHeadersRepository.updateResponseHeader(headerId, headerName, headerValue);
+        return res.status(200).json(new ResponseModel('success', `Response header with id ${headerId} updated successfully`));
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json(new ResponseModel('error', 'Failed to update the response header', null, String(error)));
+    }
+
+
+}
+
 
 export {
     addApiDetails, getAllApiDetails, getApiDetailsfromId, updateApiDetails, deleteApiDetails, addResponseHeaders,
-    getResponseHeaders, deleteResponseHeaders
+    getResponseHeaders, deleteResponseHeaders, updateResponseHeaders
 };

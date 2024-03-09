@@ -11,4 +11,5 @@ router.delete(`${rootPath}/:id`, apiDetailsController.deleteApiDetails);
 router.post(`${rootPath}/addHeaders`, apiDetailsController.addResponseHeaders);
 router.get(`${rootPath}/getHeaders/:apiId`, apiDetailsController.getResponseHeaders);
 router.delete(`${rootPath}/deleteHeader/:headerId`, apiDetailsController.deleteResponseHeaders);
+router.put(`${rootPath}/updateHeader/:headerId`, apiDetailsController.updateResponseHeaders);
 export default router;

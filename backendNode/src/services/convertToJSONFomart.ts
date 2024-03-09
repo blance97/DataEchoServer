@@ -4,6 +4,7 @@ import GroupModel from "../models/groupModel";
 import ApiDetailsModel from "../models/ApiDetailsModel";
 import groupRepository from "../repositories/groupRepository";
 import apiDetailsRepository from "../repositories/apiDetailsRepository";
+import responseHeadersRepository from "../repositories/responseHeadersRepository";
 
 const db = knex(config.development);
 
@@ -21,7 +22,7 @@ async function fetchApiDetailsFromDatabase(groupName: string) {
 async function fetchResponseHeadersFromDatabase(apiName: string) {
     const apiId = await apiDetailsRepository.getApiDetailFromName(apiName);
 
-    return db('response_headers').where('api_id', apiId).select('*');
+    return await responseHeadersRepository.getResponseHeaders(apiId);
 }
 
 async function convertToJSONFormat(groups: GroupModel[]) {
