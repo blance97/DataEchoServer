@@ -7,6 +7,7 @@ import jsonData from './data/exampleLayout.json';
 import jsonLayoutLoader from "./services/convertToSQLFormat";
 import convertToJSONFormat from "./services/convertToJSONFomart";
 import dataInterchangerRouter from "./routes/dataInterchangerRouter";
+import echoRouter from "./routes/echoRouter";
 
 const app: Application = express()
 const port = 3000;
@@ -16,9 +17,12 @@ initializeDatabase();
 app.use(bodyParser.json());
 
 
+
 app.use('/api/des', groupRouter); // Use the group routes for paths starting with '/api/des'
 app.use('/api/des', apiDetailsRouter); // Use the api details routes for paths starting with '/api/des'
 app.use('/api/des', dataInterchangerRouter); // Use the data interchanger routes for paths starting with '/api/des'
+app.use('*', echoRouter); // Use the echo router for all other paths
+
 
 //     const { name, description } = req.body;
 

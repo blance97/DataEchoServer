@@ -63,7 +63,13 @@ const getApiDetailsfromId = async (req: Request, res: Response) => {
 const updateApiDetails = async (req: Request, res: Response) => {
     try {
         const {apiId, apiName, groupId, apiMethod, apiResponseBody, apiResponseCode} = req.body;
-        const apiDetail: ApiDetailsModel = new ApiDetailsModel(apiName, groupId, apiMethod, apiResponseBody, apiResponseCode);
+
+        let responseBody = apiResponseBody;
+        if (typeof apiResponseBody === 'object' && apiResponseBody !== null) {
+            responseBody = JSON.stringify(apiResponseBody);
+        }
+
+        const apiDetail: ApiDetailsModel = new ApiDetailsModel(apiName, groupId, apiMethod, responseBody, apiResponseCode);
         if (!apiDetail.isValid()) return res.status(400).json(new ResponseModel('error', 'Invalid API details data'));
 
         try {

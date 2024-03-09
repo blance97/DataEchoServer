@@ -20,7 +20,7 @@ const getApiDetailFromId = async (apiId: number) => {
     return db('api_details').where('id', apiId);
 }
 
-const getApiDetailFromName = async (apiName: string) => {
+const getApiIdDetailFromName = async (apiName: string) => {
     const apiDetail = await db('api_details').where('api_name', apiName);
     if (apiDetail.length === 0) throw new Error('API details not found');
     return apiDetail[0].id;
@@ -46,7 +46,7 @@ export default {
     getAllApiDetails,
     getApiDetails,
     getApiDetailFromId,
-    getApiDetailFromName,
+    getApiDetailFromName: getApiIdDetailFromName,
     updateApiDetail,
     checkApiDetailExists,
     deleteApiDetail
