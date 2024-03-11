@@ -1,34 +1,30 @@
-import {Request, Response} from "express";
+import {Response} from "express";
 import apiDetailsRepository from "../repositories/apiDetailsRepository";
 import responseHeadersRepository from "../repositories/responseHeadersRepository";
 import ResponseModel from "../models/responseModel";
 import {CustomRequest} from "../middleware";
 import ApiDetailsModel from "../models/ApiDetailsModel";
-import {getResponseHeaders} from "./apiDetailsController";
 
 const validatePath = async (req: CustomRequest, res: Response) => {
+    const {
+        path = '', method = '', headers
+    } = req.routeInfo || {};
 
-    const {path, method, query, params} = req.routeInfo || {
-        path: '',
-        method: '',
-        query: {},
-        params: {}
-    };
+    let DESResponseCode = null;
+    for (let header in headers) {
+        if (header.toLowerCase() === 'desresponsecode') {
+            DESResponseCode = headers[header];
+            break;
+        }
+    }
+    if (!DESResponseCode) {
+        return res.status(400).json(new ResponseModel('error', 'Invalid request need DESResponseCode header'));
+    }
 
     try {
-        let apiId: number;
-        try {
-            apiId = await apiDetailsRepository.getApiDetailFromName(path);
-        } catch (error) {
-            console.error(error);
-            return res.status(400).json(new ResponseModel('error', 'Failed to get the API details', null, String(error)));
-        }
-
-        console.log(apiId)
-        if (apiId === 0) return res.status(404).json(new ResponseModel('error', 'API details not found'));
-
-        const apiDetail = await apiDetailsRepository.getApiDetailFromId(apiId);
-        const apiResponse: ApiDetailsModel = new ApiDetailsModel(
+        const apiDetail = await apiDetailsRepository.getApiDetailsSpecific(path, method, Number(DESResponseCode));
+        if (apiDetail.length === 0) return res.status(404).json(new ResponseModel('DES error', 'API details not found'));
+        const apiResponse = new ApiDetailsModel(
             apiDetail[0].api_name,
             apiDetail[0].group_id,
             apiDetail[0].api_method,
@@ -41,18 +37,15 @@ const validatePath = async (req: CustomRequest, res: Response) => {
         } catch (error) {
         } // Ignore the error
 
-        const headers = await responseHeadersRepository.getResponseHeaders(apiDetail[0].id);
-        console.log(headers);
-        headers.forEach((header: any) => {
-            res.setHeader(header.header_name, header.header_value);
-        });
-        console.log(res.getHeaders())
+        const responseHeaders = await responseHeadersRepository.getResponseHeaders(apiDetail[0].id);
+        responseHeaders.forEach((header: any) => res.setHeader(header.header_name, header.header_value));
+
+
         return res.status(Number(apiResponse.api_Response_Code)).json(responseBody);
     } catch (error) {
         console.error(error);
-        return res.status(500).json(new ResponseModel('error', 'Failed to validate the path', null, String(error)));
+        return res.status(500).json(new ResponseModel('DES error', 'Failed to validate the path', null, String(error)));
     }
-
 }
 
 export default {validatePath}

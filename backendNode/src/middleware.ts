@@ -9,6 +9,7 @@ export interface CustomRequest extends Request {
         method: string;
         query: Record<any,any>;
         params: Record<string, string>;
+        headers: Record<any, any>;
     };
 }
 
@@ -23,6 +24,7 @@ export const captureRouteInfo = (
         method: req.method,
         query: req.query,
         params: req.params,
+        headers: req.headers
     };
     next();
 };

@@ -12,6 +12,11 @@ const getAllApiDetails = async () => {
     return db('api_details').select('*');
 }
 
+const getApiDetailsSpecific = async (apiName: string ,apiMethod: string, apiResponseCode: number) => {
+    return db('api_details').select('*').where('api_name', apiName).andWhere('api_method', apiMethod).andWhere('api_response_code', apiResponseCode);
+
+}
+
 const getApiDetails = async (groupId: number) => {
     return db('api_details').where('group_id', groupId);
 }
@@ -44,6 +49,7 @@ const deleteApiDetail = async (apiId: number) => {
 export default {
     addApiDetail,
     getAllApiDetails,
+    getApiDetailsSpecific,
     getApiDetails,
     getApiDetailFromId,
     getApiDetailFromName: getApiIdDetailFromName,
