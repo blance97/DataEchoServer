@@ -25,15 +25,15 @@ const validatePath = async (req: CustomRequest, res: Response) => {
         const apiDetail = await apiDetailsRepository.getApiDetailsSpecific(path, method, Number(DESResponseCode));
         if (apiDetail.length === 0) return res.status(404).json(new ResponseModel('DES error', 'API details not found'));
         const apiResponse = new ApiDetailsModel(
-            apiDetail[0].api_name,
-            apiDetail[0].group_id,
-            apiDetail[0].api_method,
-            apiDetail[0].api_response_body,
-            apiDetail[0].api_response_code
+            apiDetail[0].apiName,
+            apiDetail[0].groupId,
+            apiDetail[0].apiMethod,
+            apiDetail[0].apiResponseBody,
+            apiDetail[0].apiResponseCode
         );
-        let responseBody = apiResponse.api_Response_Body;
+        let responseBody = apiResponse.apiResponseBody;
         try {
-            responseBody = JSON.parse(apiResponse.api_Response_Body as string);
+            responseBody = JSON.parse(apiResponse.apiResponseBody as string);
         } catch (error) {
         } // Ignore the error
 
@@ -41,7 +41,7 @@ const validatePath = async (req: CustomRequest, res: Response) => {
         responseHeaders.forEach((header: any) => res.setHeader(header.header_name, header.header_value));
 
 
-        return res.status(Number(apiResponse.api_Response_Code)).json(responseBody);
+        return res.status(Number(apiResponse.apiResponseCode)).json(responseBody);
     } catch (error) {
         console.error(error);
         return res.status(500).json(new ResponseModel('DES error', 'Failed to validate the path', null, String(error)));

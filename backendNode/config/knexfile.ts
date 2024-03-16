@@ -1,3 +1,4 @@
+import { knexSnakeCaseMappers } from 'objection';
 export default {
     development: {
       client: 'sqlite3',
@@ -5,7 +6,8 @@ export default {
         filename: './dev.sqlite3',
       },
       useNullAsDefault: true,
-      debug: false
+      debug: false,
+        ...knexSnakeCaseMappers()
     },
     // Add other environments as needed (e.g., production).
   };

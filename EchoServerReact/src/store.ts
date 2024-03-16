@@ -1,9 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
 import groupReducer from './features/Groups/GroupSlice'
-
+import apiDetailsReducer from './features/apiDetails/apiDetailsSlice'
 export const store = configureStore({
     reducer: {
         group: groupReducer,
+        apiDetails: apiDetailsReducer,
     }
 });
 

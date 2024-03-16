@@ -3,14 +3,17 @@ import GroupContainer from "../Groups/containers/GroupContainer";
 import {useEffect} from 'react';
 import {useDispatch} from "react-redux";
 import {fetchAllGroups} from "../Groups/GroupSlice";
+import {fetchAllApiDetails} from "../apiDetails/apiDetailsSlice";
 
 const MainContent = () => {
     const dispatch = useDispatch();
     useEffect(() => {
             // @ts-ignore
             dispatch(fetchAllGroups());
+            // @ts-ignore
+            dispatch(fetchAllApiDetails());
         },
-        [dispatch]);
+        []);
     return (
         <Box p="4" w="100%">
             <GroupContainer/>

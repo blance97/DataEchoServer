@@ -5,10 +5,10 @@ import {toast} from "react-toastify";
 
 export const fetchAllGroups = createAsyncThunk(
     'group/',
-    async (_, { rejectWithValue }) => {
+    async (_, {rejectWithValue}) => {
         try {
             const response = await fetch('/api/des/groups');
-            const responseBody:ApiResponseModel = await response.json();
+            const responseBody: ApiResponseModel = await response.json();
             if (!response.ok) {
                 toast.error(`Client error occurred: ${responseBody.message}`);
                 return rejectWithValue("Client error occurred");
@@ -22,14 +22,14 @@ export const fetchAllGroups = createAsyncThunk(
 );
 export const addGroupAsync = createAsyncThunk(
     'group/addGroup',
-    async (groupData: GroupModel, { rejectWithValue }) => {
+    async (groupData: GroupModel, {rejectWithValue}) => {
         try {
             const response = await fetch('/api/des/groups', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(groupData),
             });
-            const responseBody:ApiResponseModel = await response.json();
+            const responseBody: ApiResponseModel = await response.json();
             if (!response.ok) {
                 toast.error(`Client error occurred: ${responseBody.message}`);
                 return rejectWithValue("Client error occurred");
@@ -45,15 +45,14 @@ export const addGroupAsync = createAsyncThunk(
 
 export const updateGroup = createAsyncThunk(
     'group/updateGroup',
-    async (groupData: GroupModel, { rejectWithValue }) => {
+    async (groupData: GroupModel, {rejectWithValue}) => {
         try {
-            console.log(groupData)
             const response = await fetch(`/api/des/groups/${groupData.id}`, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(groupData),
             });
-            const responseBody:ApiResponseModel = await response.json();
+            const responseBody: ApiResponseModel = await response.json();
             if (!response.ok) {
                 toast.error(`Client error occurred: ${responseBody.message}`);
                 return rejectWithValue("Client error occurred");
@@ -69,12 +68,12 @@ export const updateGroup = createAsyncThunk(
 
 export const deleteGroup = createAsyncThunk(
     'group/deleteGroup',
-    async (groupId: number, { rejectWithValue }) => {
+    async (groupId: number, {rejectWithValue}) => {
         try {
             const response = await fetch(`/api/des/groups/${groupId}`, {
                 method: 'DELETE',
             });
-            const responseBody:ApiResponseModel = await response.json();
+            const responseBody: ApiResponseModel = await response.json();
             if (!response.ok) {
                 toast.error(`Client error occurred: ${responseBody.message}`);
                 return rejectWithValue("Client error occurred");
@@ -101,10 +100,11 @@ const groupSlice = createSlice({
         },
     },
     extraReducers: builder => {
-        builder.addCase(addGroupAsync.pending, state => {state.status = 'loading';});
+        builder.addCase(addGroupAsync.pending, state => {
+            state.status = 'loading';
+        });
         builder.addCase(addGroupAsync.fulfilled, (state, action) => {
-            console.log(action.payload)
-            const group:GroupModel = action.payload.data;
+            const group: GroupModel = action.payload.data;
             group.apiDetails = [];
             state.status = 'idle';
             state.groups.push(group);
@@ -133,5 +133,5 @@ const groupSlice = createSlice({
     },
 });
 
-export const { addGroup } = groupSlice.actions;
+export const {addGroup} = groupSlice.actions;
 export default groupSlice.reducer;

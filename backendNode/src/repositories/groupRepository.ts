@@ -25,6 +25,7 @@ const deleteGroupByName = async (name: string) => {
 const checkGroupExistsById = async (id: number) => {
     return db('groups').where('id', id).first();
 }
+
 const deleteGroupById = async (id: number) => {
     return db('groups').where('id', id).del();
 }
@@ -45,4 +46,13 @@ const updateGroup = async (groupId: Number, updatedGroup: groupModel) => {
     }
 };
 
-export default {getAll, addGroup, checkGroupExists,checkGroupExistsById, deleteGroupByName,deleteGroupById, updateGroup, getGroupId};
+export default {
+    getAll,
+    addGroup,
+    checkGroupExists,
+    checkGroupExistsById,
+    deleteGroupByName,
+    deleteGroupById,
+    updateGroup,
+    getGroupId
+};

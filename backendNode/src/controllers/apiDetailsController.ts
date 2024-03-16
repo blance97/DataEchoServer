@@ -3,6 +3,7 @@ import ResponseModel from "../models/responseModel";
 import {Request, Response} from 'express';
 import ApiDetailsModel from "../models/ApiDetailsModel";
 import responseHeadersRepository from "../repositories/responseHeadersRepository";
+import logger from "../loggers";
 
 const addApiDetails = async (req: Request, res: Response) => {
     try {
@@ -33,10 +34,15 @@ const addApiDetails = async (req: Request, res: Response) => {
 
 const getAllApiDetails = async (req: Request, res: Response) => {
     try {
+        logger.info('Getting all API details')
         const apiDetails = await apiDetailsRepository.getAllApiDetails();
+        let apiDetailsArray: ApiDetailsModel[] = [];
+        for (const apiDetail of apiDetails) {
+
+        }
         return res.status(200).json(new ResponseModel('success', 'All API details', apiDetails));
     } catch (error) {
-        console.error(error);
+        logger.error(error);
         return res.status(500).json(new ResponseModel('error', 'Failed to get all API details', null, error));
     }
 
@@ -61,28 +67,36 @@ const getApiDetailsfromId = async (req: Request, res: Response) => {
 }
 
 const updateApiDetails = async (req: Request, res: Response) => {
+    logger.info('Updating API details', req.body)
     try {
-        const {apiId, apiName, groupId, apiMethod, apiResponseBody, apiResponseCode} = req.body;
-
+        const {id, apiName, groupId, apiMethod, apiResponseBody, apiResponseCode} = req.body;
         let responseBody = apiResponseBody;
         if (typeof apiResponseBody === 'object' && apiResponseBody !== null) {
             responseBody = JSON.stringify(apiResponseBody);
         }
-
-        const apiDetail: ApiDetailsModel = new ApiDetailsModel(apiName, groupId, apiMethod, responseBody, apiResponseCode);
-        if (!apiDetail.isValid()) return res.status(400).json(new ResponseModel('error', 'Invalid API details data'));
-
-        try {
-            await apiDetailsRepository.checkApiDetailExists(apiId);
-        } catch (error) {
-            return res.status(404).json(new ResponseModel('error', 'API details not found', null, String(error)));
+        const apiDetail: ApiDetailsModel = new ApiDetailsModel(apiName, groupId, apiMethod, responseBody, apiResponseCode, id);
+        if (!apiDetail.isValid()) {
+            logger.error('Invalid API details data');
+            return res.status(400).json(new ResponseModel('error', 'Invalid API details data'));
         }
 
+        try {
+            await apiDetailsRepository.checkApiDetailExists(id);
+        } catch (error) {
+            logger.error(error);
+            return res.status(404).json(new ResponseModel('error', 'API details not found', null, String(error)));
+        }
+        try{
+            await apiDetailsRepository.updateApiDetail(id, apiDetail);
+            logger.info('API details updated successfully')
+            return res.status(200).json(new ResponseModel('success', 'API details updated successfully', apiDetail));
+        } catch (error) {
+            logger.error(error);
+            return res.status(400).json(new ResponseModel('error', 'Error in updating SQL', null, String(error)));
+        }
 
-        await apiDetailsRepository.updateApiDetail(apiId, apiDetail);
-        return res.status(200).json(new ResponseModel('success', 'API details updated successfully'));
     } catch (error) {
-        console.error(error);
+        logger.error(error);
         return res.status(500).json(new ResponseModel('error', 'Failed to update the API details', null, String(error)));
     }
 

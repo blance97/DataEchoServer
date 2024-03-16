@@ -1,19 +1,40 @@
-import { useState } from 'react';
-import { Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, FormControl, FormLabel, Input } from '@chakra-ui/react';
-import {GroupModel} from "./models/groupModel";
+import { useEffect, useState } from 'react';
+import {
+    Button,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    FormControl,
+    FormLabel,
+    Input,
+    ModalCloseButton
+} from '@chakra-ui/react';
+import { GroupModel } from "./models/groupModel";
 
 const GroupModal = ({ isOpen, onClose, onSave, title, group }: { isOpen: boolean, onClose: () => void, onSave: (group: GroupModel) => void, title: string, group: GroupModel | null }) => {
-    const [groupName, setGroupName] = useState(group ? group.name : '');
-    const [description, setDescription] = useState(group ? group.description : '');
+    const [groupDetails, setGroupDetails] = useState({ name: '', description: '' });
+
+    useEffect(() => {
+        if (group) {
+            setGroupDetails({ name: group.name, description: group.description });
+        }
+    }, [group]);
+
     const handleSave = () => {
         onSave({
             id: group ? group.id : undefined,
-            name: groupName,
-            description: description,
+            name: groupDetails.name,
+            description: groupDetails.description,
             apiDetails: []
         });
-        setGroupName('');
-        setDescription('');
+        setGroupDetails({ name: '', description: '' });
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>, key: 'name' | 'description') => {
+        setGroupDetails(prevState => ({ ...prevState, [key]: e.target.value }));
     };
 
     return (
@@ -25,11 +46,11 @@ const GroupModal = ({ isOpen, onClose, onSave, title, group }: { isOpen: boolean
                 <ModalBody>
                     <FormControl>
                         <FormLabel>Group Name</FormLabel>
-                        <Input value={groupName} onChange={(e) => setGroupName(e.target.value)} />
+                        <Input value={groupDetails.name} onChange={(e) => handleChange(e, 'name')} />
                     </FormControl>
                     <FormControl mt={4}>
                         <FormLabel>Description</FormLabel>
-                        <Input value={description} onChange={(e) => setDescription(e.target.value)} />
+                        <Input value={groupDetails.description} onChange={(e) => handleChange(e, 'description')} />
                     </FormControl>
                 </ModalBody>
                 <ModalFooter>

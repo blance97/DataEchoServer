@@ -11,6 +11,7 @@ const theme = extendTheme(/* your theme configuration */);
 function App() {
     return (
         <Provider store={store}>
+
             <ChakraProvider theme={theme}>
                 <CSSReset/>
                 <ToastContainer

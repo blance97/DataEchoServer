@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from "../../../store";
 import {GroupModel} from "../../shared/models/groupModel";
@@ -17,63 +17,65 @@ import {deleteGroup, updateGroup} from "../GroupSlice";
 import GroupModal from "../../shared/GroupModal";
 
 const GroupContainer: React.FC = () => {
-    const [isGroupModalOpen, setIsGroupModalOpen] = React.useState(false);
-    const [selectedGroup, setSelectedGroup] = React.useState<GroupModel | null>(null);
+    const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+    const [selectedGroup, setSelectedGroup] = useState<GroupModel | null>(null);
     const dispatch = useDispatch();
     const groups: GroupModel[] = useSelector((state: RootState) => state.group.groups);
 
-    const handleEditGroupModalOpen = () => {
-        setIsGroupModalOpen(true);
+    const handleModalOpen = (group?: GroupModel) => {
+        if (group) {
+            setSelectedGroup(group);
+            setIsGroupModalOpen(true);
+        }
     }
-    const handleEditGroupModalClose = () => {
+
+    const handleModalClose = () => {
         setIsGroupModalOpen(false);
     }
 
-    const handleEditGroupModalSave = (group: GroupModel) => {
-        console.log(group)
-        const updatedGroup: GroupModel = {
-            id: group.id,
-            name: group.name,
-            description: group.description,
-            apiDetails: []
-        }
+    const handleModalSave = (group: GroupModel) => {
         // @ts-ignore
-        dispatch(updateGroup(updatedGroup));
+        dispatch(updateGroup(group));
         setIsGroupModalOpen(false);
     }
 
     return (
         <div>
             <h1>Groups</h1>
-            <GroupModal isOpen={isGroupModalOpen} onClose={handleEditGroupModalClose} onSave={handleEditGroupModalSave} title="Edit Group" group={selectedGroup}/>
+            <GroupModal isOpen={isGroupModalOpen} onClose={handleModalClose} onSave={handleModalSave} title="Edit Group"
+                        group={selectedGroup}/>
             <Accordion defaultIndex={[0]} allowMultiple>
                 {groups.map((group) => (
                     <AccordionItem key={group.id}>
-                        <h2>
-                            <AccordionButton>
-                                <Box flex="1" textAlign="left">
-                                    <b>{group.name}</b>
-                                </Box>
-                                <IconButton size="sm" colorScheme="blue" aria-label="Edit" icon={<EditIcon/>}
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                setSelectedGroup(group);
-                                                handleEditGroupModalOpen();
-                                            }} mr={2}/>
-                                <IconButton
-                                    size="sm"
-                                    colorScheme="red"
-                                    aria-label="Exit"
-                                    icon={<CloseIcon/>}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        // @ts-ignore
-                                        dispatch(deleteGroup(group.id));
-                                    }}
-                                    mr={2}/>
-                                <AccordionIcon/>
-                            </AccordionButton>
-                        </h2>
+                        <AccordionButton>
+                            <Box flex="1" textAlign="left">
+                                <b>{group.name}</b>
+                            </Box>
+                            <IconButton
+                                as="div"
+                                size="sm"
+                                colorScheme="blue"
+                                aria-label="Edit"
+                                icon={<EditIcon/>}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleModalOpen(group);
+                                }} mr={2}/>
+                            <IconButton
+                                as="div"
+                                size="sm"
+                                colorScheme="red"
+                                aria-label="Exit"
+                                icon={<CloseIcon/>}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (group.id) {
+                                        dispatch(deleteGroup(group.id) as any);
+                                    }
+                                }}
+                                mr={2}/>
+                            <AccordionIcon/>
+                        </AccordionButton>
                         <AccordionPanel pb={4}>
                             <GroupCard group={group}/>
                         </AccordionPanel>
