@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, FormControl, FormLabel, Input } from '@chakra-ui/react';
 import {GroupModel} from "./models/groupModel";
 
-const GroupModal = ({ isOpen, onClose, onSave, title }: { isOpen: boolean, onClose: () => void, onSave: (group: GroupModel) => void, title: string }) => {
-    const [groupName, setGroupName] = useState('');
-    const [description, setDescription] = useState('');
-
+const GroupModal = ({ isOpen, onClose, onSave, title, group }: { isOpen: boolean, onClose: () => void, onSave: (group: GroupModel) => void, title: string, group: GroupModel | null }) => {
+    const [groupName, setGroupName] = useState(group ? group.name : '');
+    const [description, setDescription] = useState(group ? group.description : '');
     const handleSave = () => {
         onSave({
+            id: group ? group.id : undefined,
             name: groupName,
             description: description,
             apiDetails: []

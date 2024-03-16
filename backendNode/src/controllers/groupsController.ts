@@ -26,7 +26,7 @@ const addGroup = async (req: Request, res: Response) => {
             return res.status(400).json(new ResponseModel('error', 'Invalid group data provided'));
         }
         let groupId = await groupRepository.addGroup(newGroup);
-        return res.status(201).json(new ResponseModel('success', 'Group added successfully', new GroupModel( name, description, groupId[0].id)));
+        return res.status(201).json(new ResponseModel('success', 'Group added successfully', new GroupModel(name, description, groupId[0].id)));
     } catch (error) {
         logger.error(error);
         return res.status(500).json(new ResponseModel('error', 'Failed to add the group', null, error));
@@ -36,7 +36,7 @@ const addGroup = async (req: Request, res: Response) => {
 const deleteGroup = async (req: Request, res: Response) => {
     logger.info(`Deleting group with id ${req.params.id}`);
     try {
-        const {id}= req.params;
+        const {id} = req.params;
         const parsedId = Number(id)
         const groupExists = await groupRepository.checkGroupExistsById(parsedId);
         if (!groupExists) {
@@ -54,27 +54,28 @@ const deleteGroup = async (req: Request, res: Response) => {
 
 const updateGroup = async (req: Request, res: Response) => {
     try {
+        const {id} = req.params;
+        const {name, description} = req.body;
+        const parsedId = Number(id);
 
-        const {name} = req.params;
-        const {newName, description} = req.body;
-        let updatedName = newName;
-        const groupExists = await groupRepository.checkGroupExists(name);
+        logger.info(`Updating group with id ${parsedId}`);
+        
+        const groupExists = await groupRepository.checkGroupExistsById(parsedId);
         if (!groupExists) return res.status(404).json(new ResponseModel('error', 'Group not found'));
-
-        if(newName !== null && newName !== undefined && newName !== '') {
-            const newGroupExists = await groupRepository.checkGroupExists(newName);
-            if (newGroupExists) return res.status(400).json(new ResponseModel('error', 'Group with the new name already exists'));
-        } else{
-            updatedName = name;
+        console.log(name)
+        if (!name || name === '') {
+            logger.info(`New group name is empty`);
+            return res.status(400).json(new ResponseModel('error', 'Group name is empty'));
         }
+        const newGroupExists = await groupRepository.checkGroupExists(name);
+        if (newGroupExists) return res.status(400).json(new ResponseModel('error', 'Group already exists'));
 
-        await groupRepository.updateGroup(name, new GroupModel(updatedName, description));
-        return res.status(200).json(new ResponseModel('success', 'Group updated successfully'));
+        await groupRepository.updateGroup(parsedId, new GroupModel(name, description));
+        return res.status(200).json(new ResponseModel('success', 'Group updated successfully', new GroupModel(name, description, parsedId)));
     } catch (error) {
         console.error(error);
         return res.status(500).json(new ResponseModel('error', 'Failed to update the group', null, error));
     }
-
 }
 
 export {getAllGroups, addGroup, deleteGroup, updateGroup};

@@ -7,5 +7,5 @@ const rootPath = '/groups';
 router.get(`${rootPath}/`, groupController.getAllGroups);
 router.post(`${rootPath}/`, groupController.addGroup);
 router.delete(`${rootPath}/:id`, groupController.deleteGroup);
-router.put(`${rootPath}/:name`, groupController.updateGroup);
+router.put(`${rootPath}/:id`, groupController.updateGroup);
 export default router;

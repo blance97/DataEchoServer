@@ -2,6 +2,7 @@ import knex from 'knex';
 import config from '../../config/knexfile';
 import GroupModel from "../models/groupModel";
 import groupModel from "../models/groupModel";
+import logger from "../loggers";
 
 // Use the 'development' environment configuration
 const db = knex(config.development);
@@ -33,14 +34,13 @@ const getGroupId = async (groupName: string): Promise<number | null> => {
     return result.length > 0 ? result[0].id : null;
 };
 
-const updateGroup = async (oldGroupName: string, updatedGroup: groupModel) => {
-    const groupId: number | null = await getGroupId(oldGroupName);
-
+const updateGroup = async (groupId: Number, updatedGroup: groupModel) => {
     if (groupId !== null) {
+        logger.info(`Updating group with id ${groupId}`);
         return db('groups').where('id', groupId).update(updatedGroup);
     } else {
         // Handle the case where the group with the given name doesn't exist
-        console.error(`Group with name ${oldGroupName} not found.`);
+        logger.error(`Group with id ${groupId} not found`);
         return null; // or throw an error, depending on your error-handling strategy
     }
 };

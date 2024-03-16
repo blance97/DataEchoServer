@@ -18,6 +18,7 @@ import GroupModal from "../../shared/GroupModal";
 
 const GroupContainer: React.FC = () => {
     const [isGroupModalOpen, setIsGroupModalOpen] = React.useState(false);
+    const [selectedGroup, setSelectedGroup] = React.useState<GroupModel | null>(null);
     const dispatch = useDispatch();
     const groups: GroupModel[] = useSelector((state: RootState) => state.group.groups);
 
@@ -28,7 +29,8 @@ const GroupContainer: React.FC = () => {
         setIsGroupModalOpen(false);
     }
 
-    const handleAddGroupModalSave = (group: GroupModel) => {
+    const handleEditGroupModalSave = (group: GroupModel) => {
+        console.log(group)
         const updatedGroup: GroupModel = {
             id: group.id,
             name: group.name,
@@ -43,8 +45,7 @@ const GroupContainer: React.FC = () => {
     return (
         <div>
             <h1>Groups</h1>
-            <GroupModal isOpen={isGroupModalOpen} onClose={handleEditGroupModalClose} onSave={handleAddGroupModalSave}
-                        title="Edit Group"/>
+            <GroupModal isOpen={isGroupModalOpen} onClose={handleEditGroupModalClose} onSave={handleEditGroupModalSave} title="Edit Group" group={selectedGroup}/>
             <Accordion defaultIndex={[0]} allowMultiple>
                 {groups.map((group) => (
                     <AccordionItem key={group.id}>
@@ -56,6 +57,7 @@ const GroupContainer: React.FC = () => {
                                 <IconButton size="sm" colorScheme="blue" aria-label="Edit" icon={<EditIcon/>}
                                             onClick={(e) => {
                                                 e.stopPropagation()
+                                                setSelectedGroup(group);
                                                 handleEditGroupModalOpen();
                                             }} mr={2}/>
                                 <IconButton

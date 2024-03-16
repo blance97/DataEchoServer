@@ -47,6 +47,7 @@ export const updateGroup = createAsyncThunk(
     'group/updateGroup',
     async (groupData: GroupModel, { rejectWithValue }) => {
         try {
+            console.log(groupData)
             const response = await fetch(`/api/des/groups/${groupData.id}`, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
