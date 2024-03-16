@@ -70,7 +70,7 @@
           <tns-folder value="" />
           <tns-profile value="" />
           <files>
-            <file path="C:\Users\lance\Documents\code\DataEchoServer\backendNode\dev.sqlite3" schema="main" />
+            <file path="$PROJECT_DIR$/backendNode/dev.sqlite3" schema="main" />
           </files>
           <type value="NONE" />
           <user value="" />

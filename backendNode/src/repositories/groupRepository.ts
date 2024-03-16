@@ -11,14 +11,21 @@ const getAll = async () => {
 }
 
 const addGroup = async (group: GroupModel) => {
-    return db('groups').insert(group);
+    return db('groups').insert(group).returning('id');
 }
 
 const checkGroupExists = async (name: string) => {
     return db('groups').where('name', name).first();
 }
-const deleteGroup = async (name: string) => {
+const deleteGroupByName = async (name: string) => {
     return db('groups').where('name', name).del();
+}
+
+const checkGroupExistsById = async (id: number) => {
+    return db('groups').where('id', id).first();
+}
+const deleteGroupById = async (id: number) => {
+    return db('groups').where('id', id).del();
 }
 
 const getGroupId = async (groupName: string): Promise<number | null> => {
@@ -38,4 +45,4 @@ const updateGroup = async (oldGroupName: string, updatedGroup: groupModel) => {
     }
 };
 
-export default {getAll, addGroup, checkGroupExists, deleteGroup, updateGroup, getGroupId};
+export default {getAll, addGroup, checkGroupExists,checkGroupExistsById, deleteGroupByName,deleteGroupById, updateGroup, getGroupId};
