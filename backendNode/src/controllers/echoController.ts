@@ -41,7 +41,6 @@ const validatePath = async (req: CustomRequest, res: Response) => {
 
         responseHeaders.forEach((header: any) => res.setHeader(header.headerName, header.headerValue));
 
-
         return res.status(Number(apiResponse.apiResponseCode)).json(responseBody);
     } catch (error) {
         console.error(error);

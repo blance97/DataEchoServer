@@ -70,6 +70,7 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({ apiDetail, updateApi }) =
     };
 
     const onSave = () => {
+        console.log(apiDetail)
         updateApi({
             ...apiDetail,
             apiMethod: httpMethod,

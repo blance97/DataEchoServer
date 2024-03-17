@@ -22,6 +22,30 @@ export const fetchAllApiDetails = createAsyncThunk<
 
     });
 
+export const addApiDetailAsync = createAsyncThunk<ApiResponseModel, ApiDetailModel, { rejectValue: string }>(
+    'apiDetails/add',
+    async (apiDetail, {rejectWithValue}) => {
+        try {
+            const response = await fetch('/api/des/apiDetails/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(apiDetail),
+            });
+            const responseBody = await response.json();
+            if (!response.ok) {
+                toast.error(`Client error occurred: ${responseBody.message}`);
+                return rejectWithValue(responseBody);
+            }
+            toast.success('API details added successfully')
+            return responseBody;
+        } catch (error) {
+            toast.error(`Server error occurred: ${error.toString()}`);
+            return rejectWithValue(error.toString());
+        }
+    });
+
 export const updateApiDetail = createAsyncThunk<ApiResponseModel, ApiDetailModel, { rejectValue: string }>(
     'apiDetails/update',
     async (apiDetail, {rejectWithValue}) => {
@@ -51,6 +75,8 @@ const groupSlice = createSlice({
     initialState: {
         byId: {} as Record<number, ApiDetailModel>,
         allIds: [] as number[],
+        status: 'idle',
+        error: null as string | null
     },
     reducers: {
         addApiDetail(state: {
@@ -90,6 +116,27 @@ const groupSlice = createSlice({
             if (apiDetail.id !== undefined) {
                 state.byId[apiDetail.id] = apiDetail;
             }
+        });
+        builder.addCase(updateApiDetail.rejected, (state, action) => {
+            state.status = 'idle';
+            state.error = action.payload ? action.payload : 'Server error occurred';
+        });
+        builder.addCase(addApiDetailAsync.pending, state => {
+            state.status = 'loading';
+            state.error = null;
+        });
+        builder.addCase(addApiDetailAsync.rejected, (state, action) => {
+            state.status = 'idle';
+            state.error = action.payload ? action.payload : 'Server error occurred';
+        });
+        builder.addCase(addApiDetailAsync.fulfilled, (state, action) => {
+            const apiDetail = action.payload.data;
+            if (apiDetail.id !== undefined) {
+                state.byId[apiDetail.id] = apiDetail;
+                state.allIds.push(apiDetail.id);
+            }
+            state.status = 'idle';
+            state.error = null;
         });
     }
 });

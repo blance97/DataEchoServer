@@ -6,6 +6,7 @@ import responseHeadersRepository from "../repositories/responseHeadersRepository
 import logger from "../loggers";
 
 const addApiDetails = async (req: Request, res: Response) => {
+    logger.info('Adding API details', req.body)
     try {
         const {apiName, groupId, apiMethod, apiResponseBody, apiResponseCode, apiResponseHeaders} = req.body;
         const newApiDetail: ApiDetailsModel = new ApiDetailsModel(apiName, groupId, apiMethod, apiResponseBody, apiResponseCode);
@@ -13,21 +14,27 @@ const addApiDetails = async (req: Request, res: Response) => {
 
         const apiDetailIdArray = await apiDetailsRepository.addApiDetail(newApiDetail);
         const apiDetailId = apiDetailIdArray[0].id;
+
+
         if (apiResponseHeaders) {
             for (const [key, value] of Object.entries(apiResponseHeaders)) {
                 if (!key || !value) return res.status(400).json(new ResponseModel('error', 'Invalid response headers data'));
                 try {
                     await responseHeadersRepository.addResponseHeader(key, String(value), apiDetailId);
                 } catch (error) {
-                    console.error(error);
+                    logger.error("Failed to add the response headers", error);
                     return res.status(500).json(new ResponseModel('error', 'Failed to add the response headers', null, String(error)));
                 }
             }
 
         }
-        return res.status(201).json(new ResponseModel('success', 'API details added successfully'));
+        newApiDetail.id = apiDetailId;
+        logger.info('API details added successfully')
+        return res.status(201).json(new ResponseModel('success', 'API details added successfully', newApiDetail));
+
+
     } catch (error) {
-        console.error(error);
+        logger.error("Failed to add the API details", error);
         return res.status(500).json(new ResponseModel('error', 'Failed to add the API details', null, error));
     }
 }
@@ -61,7 +68,7 @@ const getApiDetailsfromId = async (req: Request, res: Response) => {
         }
         return res.status(200).json(new ResponseModel('success', 'API details', apiDetails));
     } catch (error) {
-        console.error(error);
+        logger.error(error);
         return res.status(500).json(new ResponseModel('error', 'Failed to get the API details', null, error));
     }
 }
@@ -86,7 +93,7 @@ const updateApiDetails = async (req: Request, res: Response) => {
             logger.error(error);
             return res.status(404).json(new ResponseModel('error', 'API details not found', null, String(error)));
         }
-        try{
+        try {
             await apiDetailsRepository.updateApiDetail(id, apiDetail);
             logger.info('API details updated successfully')
             return res.status(200).json(new ResponseModel('success', 'API details updated successfully', apiDetail));
