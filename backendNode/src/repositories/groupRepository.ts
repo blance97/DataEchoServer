@@ -7,6 +7,9 @@ import logger from "../loggers";
 // Use the 'development' environment configuration
 const db = knex(config.development);
 
+db.raw('PRAGMA foreign_keys = ON;')
+    .then(() => console.log('Foreign key enforcement is enabled.'))
+    .catch(err => console.error('Failed to enable foreign key enforcement:', err));
 const getAll = async () => {
     return db('groups').select('*');
 }

@@ -1,7 +1,12 @@
 import knex from "knex";
 import config from "../config/knexfile";
+import logger from "../src/loggers";
 
 const db = knex(config.development);
+
+db.raw('PRAGMA foreign_keys = ON;')
+    .then(() => console.log('Foreign key enforcement is enabled.'))
+    .catch(err => console.error('Failed to enable foreign key enforcement:', err));
 
 const initializeDatabase = async () => {
 
@@ -41,7 +46,7 @@ const initializeDatabase = async () => {
         });
     }
 
-    console.log('Tables created successfully!');
+    logger.info('Database initialized successfully');
     await db.destroy();
 };
 

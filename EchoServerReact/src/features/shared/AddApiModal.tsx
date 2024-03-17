@@ -118,9 +118,9 @@ const AddApiModal = ({ isOpen, onClose, onAdd, groups, error, apiStatus }: {
 
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isOpen} onClose={onClose} >
             <ModalOverlay/>
-            <ModalContent>
+            <ModalContent maxW="60vW">
                 <ModalHeader>Add API</ModalHeader>
                 <ModalCloseButton/>
                 <ModalBody>
