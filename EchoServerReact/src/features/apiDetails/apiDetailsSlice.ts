@@ -70,6 +70,26 @@ export const updateApiDetail = createAsyncThunk<ApiResponseModel, ApiDetailModel
         }
     });
 
+export const deleteApiDetail = createAsyncThunk<ApiResponseModel, number, { rejectValue: string }>(
+    'apiDetails/delete',
+    async (id, {rejectWithValue}) => {
+        try {
+            const response = await fetch(`/api/des/apiDetails/${id}`, {
+                method: 'DELETE',
+            });
+            const responseBody = await response.json();
+            if (!response.ok) {
+                toast.error(`Client error occurred: ${responseBody.message}`);
+                return rejectWithValue(responseBody);
+            }
+            toast.success('API details deleted successfully')
+            return responseBody;
+        } catch (error) {
+            toast.error(`Server error occurred: ${error.toString()}`);
+            return rejectWithValue(error.toString());
+        }
+    });
+
 const groupSlice = createSlice({
     name: 'apiDetails',
     initialState: {
@@ -134,6 +154,23 @@ const groupSlice = createSlice({
             if (apiDetail.id !== undefined) {
                 state.byId[apiDetail.id] = apiDetail;
                 state.allIds.push(apiDetail.id);
+            }
+            state.status = 'idle';
+            state.error = null;
+        });
+        builder.addCase(deleteApiDetail.pending, state => {
+            state.status = 'loading';
+            state.error = null;
+        });
+        builder.addCase(deleteApiDetail.rejected, (state, action) => {
+            state.status = 'idle';
+            state.error = action.payload ? action.payload : 'Server error occurred';
+        });
+        builder.addCase(deleteApiDetail.fulfilled, (state, action) => {
+            const apiId = action.payload.data;
+            if (apiId !== undefined) {
+                delete state.byId[apiId];
+                state.allIds = state.allIds.filter(id => id !== apiId);
             }
             state.status = 'idle';
             state.error = null;

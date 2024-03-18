@@ -3,7 +3,7 @@ import config from "../../config/knexfile";
 
 const db = knex(config.development);
 
-const addResponseHeader = async (headerName: String, headerValue: String, apiId:Number) => {
+const addResponseHeader = async (headerName: String, headerValue: String, apiId: Number) => {
     return db('response_headers').insert({headerName, headerValue, apiId});
 }
 
@@ -24,6 +24,11 @@ const deleteResponseHeader = async (header_id: Number) => {
     return db('response_headers').where('id', header_id).del();
 }
 
+const deleteResponseHeaders = async (apiId: Number) => {
+    return db('response_headers').where('apiId', apiId).del();
+
+}
+
 const updateResponseHeader = async (header_id: Number, headerName: String, headerValue: String) => {
     // Try to retrieve the header with the given ID
     const header = await db('response_headers').where('id', header_id).first();
@@ -38,4 +43,10 @@ const updateResponseHeader = async (header_id: Number, headerName: String, heade
 
 }
 
-export default {addResponseHeader, getResponseHeaders, deleteResponseHeader, updateResponseHeader};
+export default {
+    addResponseHeader,
+    getResponseHeaders,
+    deleteResponseHeader,
+    deleteResponseHeaders,
+    updateResponseHeader
+};

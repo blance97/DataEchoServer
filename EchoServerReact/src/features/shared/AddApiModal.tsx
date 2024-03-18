@@ -24,10 +24,10 @@ import ApiDetailModel from "./models/apiDetailModel";
 import HeaderModel from "./models/HeaderModel";
 
 
-const AddApiModal = ({ isOpen, onClose, onAdd, groups, error, apiStatus }: {
+const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
     isOpen: boolean,
     onClose: () => void,
-    onAdd: (apiDetails: ApiDetailModel, headers: HeaderModel[]) => void,
+    onAdd: (apiDetails: ApiDetailModel) => void,
     groups: GroupModel[],
     error: string,
     apiStatus: string
@@ -36,7 +36,7 @@ const AddApiModal = ({ isOpen, onClose, onAdd, groups, error, apiStatus }: {
     const [apiName, setApiName] = useState('');
     const [apiResponse, setApiResponse] = useState('');
     const [apiResponseCode, setApiResponseCode] = useState(200);
-    const [headers, setHeaders] = useState<HeaderModel[]>([{key: '', value: ''}]);
+    const [headers, setHeaders] = useState<HeaderModel[]>([{headerName: '', headerValue: ''}]);
     const [selectedGroup, setSelectedGroup] = useState(-1);
     const [apiNameError, setApiNameError] = useState('');
     const [apiResponseError, setApiResponseError] = useState('');
@@ -44,13 +44,13 @@ const AddApiModal = ({ isOpen, onClose, onAdd, groups, error, apiStatus }: {
     const [groupError, setGroupError] = useState('');
 
     useEffect(() => {
-        if(apiStatus === 'idle' && !error) {
+        if (apiStatus === 'idle' && !error) {
             // Clear the form fields
             setApiMethod('GET');
             setApiName('');
             setApiResponse('');
             setApiResponseCode(200);
-            setHeaders([{key: '', value: ''}]);
+            setHeaders([{headerName: '', headerValue: ''}]);
             // @ts-ignore
             setSelectedGroup(groups.length > 0 ? groups[0].id : -1);
             setApiNameError('');
@@ -58,22 +58,22 @@ const AddApiModal = ({ isOpen, onClose, onAdd, groups, error, apiStatus }: {
             setApiResponseCodeError('');
             setGroupError('');
         }
-        if(groups.length > 0) {
+        if (groups.length > 0) {
             // @ts-ignore
             setSelectedGroup(groups[0].id);
         }
-    }, [apiStatus,error,groups]);
+    }, [apiStatus, error, groups]);
     const handleAddHeader = () => {
-        setHeaders([...headers, {key: '', value: ''}]);
+        setHeaders([...headers, {headerName: '', headerValue: ''}]);
     };
 
     const handleRemoveHeader = (index: number) => {
         setHeaders(headers.filter((_, i) => i !== index));
     };
 
-    const handleEditHeader = (index: number, key: string, value: string) => {
+    const handleEditHeader = (index: number, headerName: string, headerValue: string) => {
         const newHeaders = [...headers];
-        newHeaders[index] = {key, value};
+        newHeaders[index] = {headerName, headerValue};
         setHeaders(newHeaders);
     };
     const handleAddApi = () => {
@@ -110,15 +110,16 @@ const AddApiModal = ({ isOpen, onClose, onAdd, groups, error, apiStatus }: {
                 apiName: apiName,
                 apiResponseBody: apiResponse,
                 apiResponseCode: apiResponseCode,
-                groupId: selectedGroup // Provide a default value
+                groupId: selectedGroup,
+                apiResponseHeaders: headers
             };
-            onAdd(apiDetails, headers);
+            onAdd(apiDetails);
         }
     }
 
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} >
+        <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay/>
             <ModalContent maxW="60vW">
                 <ModalHeader>Add API</ModalHeader>
@@ -149,23 +150,23 @@ const AddApiModal = ({ isOpen, onClose, onAdd, groups, error, apiStatus }: {
                             <option value="DELETE">DELETE</option>
                         </Select>
                     </FormControl>
-                    <FormControl mt={4}>
+                    <FormControl mt={2}>
                         <FormLabel>API Name</FormLabel>
                         <Input value={apiName} onChange={(e) => setApiName(e.target.value)}/>
                         {apiNameError && <Text color="red.500">{apiNameError}</Text>}
                     </FormControl>
-                    <FormControl mt={4}>
+                    <FormControl mt={2}>
                         <FormLabel>API Response</FormLabel>
                         <Input value={apiResponse} onChange={(e) => setApiResponse(e.target.value)}/>
                         {apiResponseError && <Text color="red.500">{apiResponseError}</Text>}
                     </FormControl>
-                    <FormControl mt={4}>
+                    <FormControl mt={2}>
                         <FormLabel>API Response Code</FormLabel>
                         <Input value={apiResponseCode} onChange={(e) => setApiResponseCode(Number(e.target.value))}
                                type="number"/>
                         {apiResponseCodeError && <Text color="red.500">{apiResponseCodeError}</Text>}
                     </FormControl>
-                    <FormControl mt={4}>
+                    <FormControl maxH="200px" overflowY="auto" mt={2}>
                         <FormLabel>Headers</FormLabel>
                         <Table variant="simple">
                             <Thead>
@@ -178,18 +179,18 @@ const AddApiModal = ({ isOpen, onClose, onAdd, groups, error, apiStatus }: {
                             <Tbody>
                                 {headers.map((header, index) => (
                                     <Tr key={index}>
-                                        <Td><Input value={header.key}
-                                                   onChange={(e) => handleEditHeader(index, e.target.value, header.value)}/></Td>
-                                        <Td><Input value={header.value}
-                                                   onChange={(e) => handleEditHeader(index, header.key, e.target.value)}/></Td>
+                                        <Td><Input value={header.headerName}
+                                                   onChange={(e) => handleEditHeader(index, e.target.value, header.headerValue)}/></Td>
+                                        <Td><Input value={header.headerValue}
+                                                   onChange={(e) => handleEditHeader(index, header.headerName, e.target.value)}/></Td>
                                         <Td><Button colorScheme="red"
                                                     onClick={() => handleRemoveHeader(index)}>Remove</Button></Td>
                                     </Tr>
                                 ))}
                             </Tbody>
                         </Table>
-                        <Button colorScheme="blue" onClick={handleAddHeader} mt={4}>Add Header</Button>
                     </FormControl>
+                    <Button colorScheme="blue" onClick={handleAddHeader} mt={2}>Add Header</Button>
 
                 </ModalBody>
                 <ModalFooter>

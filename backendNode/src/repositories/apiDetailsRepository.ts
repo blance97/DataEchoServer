@@ -1,8 +1,12 @@
 import knex from "knex";
 import config from "../../config/knexfile";
 import ApiDetailsModel from "../models/ApiDetailsModel";
+import logger from "../loggers";
 
 const db = knex(config.development);
+db.raw('PRAGMA foreign_keys = ON;')
+    .then(() => logger.info('Foreign key enforcement is enabled.'))
+    .catch(err => logger.error('Failed to enable foreign key enforcement:', err));
 
 const addApiDetail = async (apiDetail: ApiDetailsModel) => {
     return db('api_details').insert(apiDetail).returning('id');

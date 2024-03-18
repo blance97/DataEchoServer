@@ -9,11 +9,13 @@ import echoRouter from "./routes/echoRouter";
 import logger from "./loggers";
 
 const app: Application = express()
-const port = 3000;
+const port = 3000 || process.env.PORT
 
 initializeDatabase();
 
 app.use(bodyParser.json());
+
+app.use(express.static('public'));
 
 app.use('/api/des', groupRouter);
 app.use('/api/des', apiDetailsRouter);

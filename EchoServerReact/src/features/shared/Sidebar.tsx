@@ -30,7 +30,7 @@ const Sidebar = () => {
     const handleCloseApiModal = () => {
         setIsApiModalOpen(false);
     }
-    const handleAddApiDetail = (api: ApiDetailModel, headers: HeaderModel[]) => {
+    const handleAddApiDetail = (api: ApiDetailModel) => {
         dispatch(addApiDetailAsync(api));
     };
 

@@ -5,4 +5,5 @@ export default interface ApiDetailModel {
     apiResponseBody: string;
     apiResponseCode: number;
     groupId: number;
+    apiResponseHeaders?: Array<{ headerName: string, headerValue: string }>;
 }

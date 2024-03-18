@@ -3,7 +3,7 @@ import {
     AccordionPanel,
     Box,
     Button, Flex,
-    FormLabel,
+    FormLabel, IconButton,
     Input,
     Select,
     Table,
@@ -17,16 +17,17 @@ import {
 } from "@chakra-ui/react";
 import React, {useEffect, useState} from "react";
 import ApiDetailModel from "../../shared/models/apiDetailModel";
+import {DeleteIcon} from "@chakra-ui/icons";
 
 interface ApiDetailCardProps {
     apiDetail: ApiDetailModel;
     updateApi: (apiDetail: ApiDetailModel) => void;
+    deleteApi: (apiDetailId: number) => void;
 }
 
-const ApiDetailCard: React.FC<ApiDetailCardProps> = ({ apiDetail, updateApi }) => {
-
+const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, deleteApi}) => {
     const [httpMethod, setHttpMethod] = useState(apiDetail.apiMethod);
-    const [originalHttpMethod,setOriginalHttpMethod] = useState(apiDetail.apiMethod);
+    const [originalHttpMethod, setOriginalHttpMethod] = useState(apiDetail.apiMethod);
 
     const [responseCode, setResponseCode] = useState(apiDetail.apiResponseCode);
     const [originalResponseCode, setOriginalResponseCode] = useState(apiDetail.apiResponseCode);
@@ -36,8 +37,10 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({ apiDetail, updateApi }) =
     const [responseBody, setResponseBody] = useState(apiDetail.apiResponseBody);
     const [originalResponseBody, setOriginalResponseBody] = useState(apiDetail.apiResponseBody);
 
-    const [responseHeaders, setResponseHeaders] = useState<{ key: string, value: string }[]>([]);
+    const [responseHeaders, setResponseHeaders] = useState(apiDetail.apiResponseHeaders || []);
 
+    const [apiName, setApiName] = useState(apiDetail.apiName);
+    const [originalApiName, setOriginalApiName] = useState(apiDetail.apiName);
 
     useEffect(() => {
         setHttpMethod(apiDetail.apiMethod);
@@ -49,17 +52,19 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({ apiDetail, updateApi }) =
         setResponseBody(apiDetail.apiResponseBody);
         setOriginalResponseBody(apiDetail.apiResponseBody);
 
-        // ... reset other state variables ...
+        setApiName(apiDetail.apiName);
+        setOriginalApiName(apiDetail.apiName);
+
     }, [apiDetail]);
 
 
     const handleAddHeader = () => {
-        setResponseHeaders([...responseHeaders, {key: '', value: ''}]);
+        setResponseHeaders([...responseHeaders, {headerName: '', headerValue: ''}]);
     };
 
     const handleEditHeader = (index: number, key: string, value: string) => {
         const newHeaders = [...responseHeaders];
-        newHeaders[index] = {key, value};
+        newHeaders[index] = {headerName: key, headerValue: value};
         setResponseHeaders(newHeaders);
     };
 
@@ -70,13 +75,21 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({ apiDetail, updateApi }) =
     };
 
     const onSave = () => {
-        console.log(apiDetail)
         updateApi({
             ...apiDetail,
+            apiName: apiName,
             apiMethod: httpMethod,
             apiResponseCode: responseCode,
-            apiResponseBody: responseBody
+            apiResponseBody: responseBody,
+            apiResponseHeaders: responseHeaders
         });
+    }
+
+    const handleDelete = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        if (apiDetail.id !== undefined) {
+            deleteApi(apiDetail.id);
+        }
     }
 
     const getColor = (method: string) => {
@@ -103,20 +116,38 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({ apiDetail, updateApi }) =
                     {' '}
                     <Text as="span">{apiDetail.apiName}</Text>
                 </Box>
+                <IconButton
+                    as='div'
+                    aria-label="Delete"
+                    icon={<DeleteIcon/>}
+                    variant="ghost"
+                    colorScheme="red"
+                    onClick={(event) => handleDelete(event)} // Add your delete handler here
+                />
                 <AccordionIcon/>
             </AccordionButton>
             <AccordionPanel>
-                <VStack align="start" spacing={4}>
+                <VStack align="start" spacing={2}>
                     <Box borderWidth="1px" bg="gray.50" borderRadius="md" p={4} my={2} boxShadow="base" width="100%">
+                        <FormLabel>API Name</FormLabel>
+                        <Input mb={2} backgroundColor={apiName !== originalApiName ? '#F6E05E' : 'white'}
+                               value={apiName} onChange={(e) => setApiName(e.target.value)}/>
+
                         <FormLabel>HTTP Method</FormLabel>
-                        <Select value={httpMethod} backgroundColor={httpMethod !== originalHttpMethod ? '#F6E05E':'white'} onChange={(e) => {setHttpMethod(e.target.value)}}>
+                        <Select value={httpMethod}
+                                backgroundColor={httpMethod !== originalHttpMethod ? '#F6E05E' : 'white'}
+                                onChange={(e) => {
+                                    setHttpMethod(e.target.value)
+                                }}>
                             <option value="GET">GET</option>
                             <option value="POST">POST</option>
                             <option value="PUT">PUT</option>
                             <option value="DELETE">DELETE</option>
                         </Select>
                         <FormLabel mt={4}>Response Code</FormLabel>
-                        <Input value={responseCode} backgroundColor={responseCode !== originalResponseCode ? '#F6E05E':'white'} onChange={(e) => setResponseCode(Number(e.target.value))} type="text"
+                        <Input value={responseCode}
+                               backgroundColor={responseCode !== originalResponseCode ? '#F6E05E' : 'white'}
+                               onChange={(e) => setResponseCode(Number(e.target.value))} type="text"
                                pattern="\d*" maxLength={5}/>
                     </Box>
                     <Box borderWidth="1px" bg="gray.50" borderRadius="md" p={4} my={2} boxShadow="base" width="100%">
@@ -129,7 +160,7 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({ apiDetail, updateApi }) =
                         <FormLabel mt={4}>Response Body</FormLabel>
                         <Textarea placeholder="Response Body"
                                   value={responseBody}
-                                  backgroundColor={responseBody !== originalResponseBody ? '#F6E05E':'white'}
+                                  backgroundColor={responseBody !== originalResponseBody ? '#F6E05E' : 'white'}
                                   onChange={(e) => setResponseBody(e.target.value)} height="150px"
                                   width="100%"/>
                     </Box>
@@ -145,10 +176,10 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({ apiDetail, updateApi }) =
                             <Tbody>
                                 {responseHeaders.map((header, index) => (
                                     <Tr key={index}>
-                                        <Td><Input value={header.key}
-                                                   onChange={(e) => handleEditHeader(index, e.target.value, header.value)}/></Td>
-                                        <Td><Input value={header.value}
-                                                   onChange={(e) => handleEditHeader(index, header.key, e.target.value)}/></Td>
+                                        <Td><Input value={header.headerName}
+                                                   onChange={(e) => handleEditHeader(index, e.target.value, header.headerValue)}/></Td>
+                                        <Td><Input value={header.headerValue}
+                                                   onChange={(e) => handleEditHeader(index, header.headerName, e.target.value)}/></Td>
                                         <Td><Button colorScheme="red"
                                                     onClick={() => handleRemoveHeader(index)}>Remove</Button></Td>
                                     </Tr>
