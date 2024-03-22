@@ -5,7 +5,8 @@ export const store = configureStore({
     reducer: {
         group: groupReducer,
         apiDetails: apiDetailsReducer,
-    }
+    },
+
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

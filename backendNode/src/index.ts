@@ -15,8 +15,6 @@ initializeDatabase();
 
 app.use(bodyParser.json());
 
-app.use(express.static('public'));
-
 app.use('/api/des', groupRouter);
 app.use('/api/des', apiDetailsRouter);
 app.use('/api/des', dataInterchangerRouter);

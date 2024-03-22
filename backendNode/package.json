@@ -2,10 +2,11 @@
   "name": "backendnode",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "start": "nodemon src/index.ts",
-    "build": "babel src -d dist",
+    "start:prod": "node dist/src/index.js",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

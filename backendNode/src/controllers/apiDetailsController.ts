@@ -21,10 +21,14 @@ const addApiDetails = async (req: Request, res: Response) => {
         }
 
         //if response headers are not of type array return error
-        console.log(apiResponseHeaders)
         if (apiResponseHeaders && !Array.isArray(apiResponseHeaders)) {
             logger.error('Invalid response headers data');
             return res.status(400).json(new ResponseModel('error', 'Invalid response headers data'));
+        }
+
+        for(const header of apiResponseHeaders){
+            const {headerName, headerValue} = header;
+            if (!headerName || !headerValue) return res.status(400).json(new ResponseModel('error', 'Invalid response headers data'));
         }
 
         delete newApiDetail.apiResponseHeaders;
@@ -33,17 +37,15 @@ const addApiDetails = async (req: Request, res: Response) => {
         const apiDetailId = apiDetailIdArray[0].id;
 
         if (apiResponseHeaders) {
+
             logger.info('Adding response headers', apiResponseHeaders)
-            for (const header of apiResponseHeaders) {
-                const {headerName, headerValue} = header;
-                if (!headerName || !headerValue) return res.status(400).json(new ResponseModel('error', 'Invalid response headers data'));
-                try {
-                    await responseHeadersRepository.addResponseHeader(headerName, String(headerValue), apiDetailId);
-                } catch (error) {
-                    logger.error("Failed to add the response headers", error);
-                    return res.status(500).json(new ResponseModel('error', 'Failed to add the response headers', null, String(error)));
-                }
+            try{
+                await responseHeadersRepository.addResponseHeaders(apiResponseHeaders, apiDetailId);
+            } catch (error) {
+                logger.error(error);
+                return res.status(500).json(new ResponseModel('error', 'Failed to add the response headers', null, error));
             }
+
         }
         newApiDetail.apiResponseHeaders = apiResponseHeaders;
         newApiDetail.id = apiDetailId;

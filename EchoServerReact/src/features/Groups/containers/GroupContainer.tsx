@@ -9,8 +9,9 @@ import {
     AccordionIcon,
     AccordionItem,
     AccordionPanel,
-    Box,
-    IconButton
+    Box, Flex,
+    IconButton, Spacer,
+    Text
 } from "@chakra-ui/react";
 import {EditIcon, CloseIcon} from '@chakra-ui/icons';
 import {deleteGroup, updateGroup} from "../GroupSlice";
@@ -46,11 +47,15 @@ const GroupContainer: React.FC = () => {
                         group={selectedGroup}/>
             <Accordion defaultIndex={[0]} allowMultiple>
                 {groups.map((group) => (
-                    <AccordionItem key={group.id}>
+                    <AccordionItem key={group.id} border="1px solid #E2E8F0" p={4}>
                         <AccordionButton>
-                            <Box flex="1" textAlign="left">
+                            <Flex flex="1" textAlign="left" fontSize="lg">
                                 <b>{group.name}</b>
-                            </Box>
+                                <Text mx={2}>-</Text>
+                                <Text isTruncated maxWidth="200px" fontStyle="italic">
+                                    {group.description}
+                                </Text>
+                            </Flex>
                             <IconButton
                                 as="div"
                                 size="sm"

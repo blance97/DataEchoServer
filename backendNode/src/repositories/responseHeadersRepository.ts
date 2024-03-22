@@ -1,10 +1,16 @@
 import knex from "knex";
 import config from "../../config/knexfile";
+import HeaderModel from "../models/headerModel";
 
 const db = knex(config.development);
 
 const addResponseHeader = async (headerName: String, headerValue: String, apiId: Number) => {
     return db('response_headers').insert({headerName, headerValue, apiId});
+}
+
+const addResponseHeaders = async (headers: Array<HeaderModel>, apiId: Number) => {
+    return db('response_headers').insert(headers.map(header => ({headerName: header.headerName, headerValue: header.headerValue, apiId})));
+
 }
 
 const getResponseHeaders = async (apiId: Number) => {
@@ -45,6 +51,7 @@ const updateResponseHeader = async (header_id: Number, headerName: String, heade
 
 export default {
     addResponseHeader,
+    addResponseHeaders,
     getResponseHeaders,
     deleteResponseHeader,
     deleteResponseHeaders,

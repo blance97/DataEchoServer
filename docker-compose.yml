@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  backend:
+    build:
+      context: ./backendNode
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./EchoServerReact
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - backend
