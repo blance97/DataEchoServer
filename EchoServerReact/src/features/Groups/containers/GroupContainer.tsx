@@ -10,7 +10,7 @@ import {
     AccordionItem,
     AccordionPanel,
     Box, Flex,
-    IconButton, Spacer,
+    IconButton, Input, Spacer,
     Text
 } from "@chakra-ui/react";
 import {EditIcon, CloseIcon} from '@chakra-ui/icons';
@@ -20,6 +20,7 @@ import GroupModal from "../../shared/GroupModal";
 const GroupContainer: React.FC = () => {
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<GroupModel | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const dispatch = useDispatch();
     const groups: GroupModel[] = useSelector((state: RootState) => state.group.groups);
 
@@ -40,13 +41,23 @@ const GroupContainer: React.FC = () => {
         setIsGroupModalOpen(false);
     }
 
+    const filteredGroups = groups.filter(group => group.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
     return (
         <div>
             <h1>Groups</h1>
+            <Input
+                placeholder="Search groups..."
+                mb="3"
+                mt="3"
+                size="lg"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
             <GroupModal isOpen={isGroupModalOpen} onClose={handleModalClose} onSave={handleModalSave} title="Edit Group"
                         group={selectedGroup}/>
             <Accordion defaultIndex={[0]} allowMultiple>
-                {groups.map((group) => (
+                {filteredGroups.map((group) => (
                     <AccordionItem key={group.id} border="1px solid #E2E8F0" p={4}>
                         <AccordionButton>
                             <Flex flex="1" textAlign="left" fontSize="lg">

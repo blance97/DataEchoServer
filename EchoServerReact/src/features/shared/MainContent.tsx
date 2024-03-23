@@ -4,6 +4,7 @@ import {useEffect} from 'react';
 import {useDispatch} from "react-redux";
 import {fetchAllGroups} from "../Groups/GroupSlice";
 import {fetchAllApiDetails} from "../apiDetails/apiDetailsSlice";
+import loggingContainer from "../logs/LoggingContainer";
 
 const MainContent = () => {
     const dispatch = useDispatch();

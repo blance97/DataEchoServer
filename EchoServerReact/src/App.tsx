@@ -5,6 +5,7 @@ import {Provider} from "react-redux";
 import {store} from "./store";
 import "react-toastify/dist/ReactToastify.css";
 import {Bounce, ToastContainer} from "react-toastify";
+import LoggingContainer from "./features/logs/LoggingContainer";
 
 const theme = extendTheme(/* your theme configuration */);
 
@@ -33,6 +34,9 @@ function App() {
                     </Box>
                     <Flex flex="1" alignItems="center" justifyContent="center" maxWidth='100%'>
                         <MainContent/>
+                    </Flex>
+                    <Flex flex="1" height="100%" mr="500" maxWidth='100%'>
+                        <LoggingContainer/>
                     </Flex>
                 </Flex>
             </ChakraProvider>
