@@ -5,7 +5,7 @@ import {Provider} from "react-redux";
 import {store} from "./store";
 import "react-toastify/dist/ReactToastify.css";
 import {Bounce, ToastContainer} from "react-toastify";
-import LoggingContainer from "./features/logs/LoggingContainer";
+import LoggingContainer from "./features/console/LoggingContainer";
 
 const theme = extendTheme(/* your theme configuration */);
 
