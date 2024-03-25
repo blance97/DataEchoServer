@@ -1,7 +1,7 @@
 // controllers/groupController.ts
 import {Request, Response} from 'express';
 import ResponseModel from '../models/responseModel';
-import groupRepository from '../repositories/groupRepository';
+import groupRepository from "../repositories/groupRepository";
 import GroupModel from "../models/groupModel";
 import logger from "../loggers";
 
