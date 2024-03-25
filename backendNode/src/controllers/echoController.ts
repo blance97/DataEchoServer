@@ -4,6 +4,7 @@ import responseHeadersRepository from "../repositories/responseHeadersRepository
 import ResponseModel from "../models/responseModel";
 import {CustomRequest} from "../middleware";
 import ApiDetailsModel from "../models/ApiDetailsModel";
+import websocketServer from "../websocketServer";
 
 const validatePath = async (req: CustomRequest, res: Response) => {
     const {
@@ -18,12 +19,19 @@ const validatePath = async (req: CustomRequest, res: Response) => {
         }
     }
     if (!DESResponseCode) {
+        const message = `[${new Date().toTimeString().split(' ')[0]}] Req: ${req.method} ${req.path} ${JSON.stringify(req.body)} Res: 400 Invalid request need DESResponseCode header`;
+        websocketServer.sendMessages(message);
         return res.status(400).json(new ResponseModel('error', 'Invalid request need DESResponseCode header'));
     }
 
     try {
         const apiDetail = await apiDetailsRepository.getApiDetailsSpecific(path, method, Number(DESResponseCode));
-        if (apiDetail.length === 0) return res.status(404).json(new ResponseModel('DES error', 'API details not found'));
+        if (apiDetail.length === 0) {
+            const message = `[${new Date().toTimeString().split(' ')[0]}] Req: ${req.method} ${req.path} ${JSON.stringify(req.body)} Res: 404 API details not found`;
+            websocketServer.sendMessages(message);
+            return res.status(404).json(new ResponseModel('DES error', 'API details not found'));
+        }
+
         const apiResponse = new ApiDetailsModel(
             apiDetail[0].apiName,
             apiDetail[0].groupId,
@@ -40,7 +48,7 @@ const validatePath = async (req: CustomRequest, res: Response) => {
         const responseHeaders = await responseHeadersRepository.getResponseHeaders(apiDetail[0].id);
 
         responseHeaders.forEach((header: any) => res.setHeader(header.headerName, header.headerValue));
-
+        const message = `[${new Date().toTimeString().split(' ')[0]}] Req: ${req.method} ${req.path} ${JSON.stringify(req.body)} Res: ${apiResponse.apiResponseCode} ${apiResponse.apiResponseBody}`;        websocketServer.sendMessages(message);
         return res.status(Number(apiResponse.apiResponseCode)).json(responseBody);
     } catch (error) {
         console.error(error);

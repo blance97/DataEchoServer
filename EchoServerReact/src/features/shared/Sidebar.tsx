@@ -7,8 +7,8 @@ import {AppDispatch} from "../../store";
 import GroupModal from "./GroupModal";
 import AddApiModal from "./AddApiModal";
 import ApiDetailModel from "./models/apiDetailModel";
-import HeaderModel from "./models/HeaderModel";
 import {addApiDetailAsync} from "../apiDetails/apiDetailsSlice";
+import LoggingContainer from "../console/LoggingContainer";
 
 const Sidebar = () => {
     const [isGroupModalOpen, setIsGroupModalOpen] = React.useState(false);
@@ -62,6 +62,7 @@ const Sidebar = () => {
                         title="Add Group" group={null}/>
             <AddApiModal isOpen={isApiModalOpen} onClose={handleCloseApiModal} onAdd={handleAddApiDetail}
                          groups={groups} apiStatus={apiDetails.status} error={apiDetails.error}/>
+            <LoggingContainer />
         </Box>
     );
 };
