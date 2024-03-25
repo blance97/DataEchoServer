@@ -22,7 +22,7 @@ import {useEffect, useState} from "react";
 import {GroupModel} from "./models/groupModel";
 import ApiDetailModel from "./models/apiDetailModel";
 import HeaderModel from "./models/HeaderModel";
-
+import HTTPResponseCodes from './HTTPResponseCodes.json';
 
 const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
     isOpen: boolean,
@@ -42,6 +42,7 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
     const [apiResponseError, setApiResponseError] = useState('');
     const [apiResponseCodeError, setApiResponseCodeError] = useState('');
     const [groupError, setGroupError] = useState('');
+    const [filterTerm, setFilterTerm] = useState('');
 
     useEffect(() => {
         if (apiStatus === 'idle' && !error) {
@@ -117,7 +118,6 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
         }
     }
 
-
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay/>
@@ -162,8 +162,14 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
                     </FormControl>
                     <FormControl mt={2}>
                         <FormLabel>API Response Code</FormLabel>
-                        <Input value={apiResponseCode} onChange={(e) => setApiResponseCode(Number(e.target.value))}
-                               type="number"/>
+                        <Input placeholder="Filter response codes" value={filterTerm} onChange={(e) => setFilterTerm(e.target.value)} />
+                        <Select value={apiResponseCode} onChange={(e) => setApiResponseCode(Number(e.target.value))}>
+                            {Object.entries(HTTPResponseCodes)
+                                .filter(([code, details]) => `${code} - ${details.message}`.includes(filterTerm))
+                                .map(([code, details]) => (
+                                    <option key={code} value={code}>{code} - {details.message}</option>
+                                ))}
+                        </Select>
                         {apiResponseCodeError && <Text color="red.500">{apiResponseCodeError}</Text>}
                     </FormControl>
                     <FormControl maxH="200px" overflowY="auto" mt={2}>

@@ -1,10 +1,10 @@
 import { Box } from '@chakra-ui/react';
 import GroupContainer from "../Groups/containers/GroupContainer";
-import {useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {useDispatch} from "react-redux";
 import {fetchAllGroups} from "../Groups/GroupSlice";
 import {fetchAllApiDetails} from "../apiDetails/apiDetailsSlice";
-import loggingContainer from "../console/LoggingContainer";
+import LoggingContainer from "../console/LoggingContainer";
 
 const MainContent = () => {
     const dispatch = useDispatch();

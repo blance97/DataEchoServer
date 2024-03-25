@@ -36,7 +36,7 @@ const addApiDetails = async (req: Request, res: Response) => {
         const apiDetailIdArray = await apiDetailsRepository.addApiDetail(newApiDetail);
         const apiDetailId = apiDetailIdArray[0].id;
 
-        if (apiResponseHeaders) {
+        if (apiResponseHeaders && apiResponseHeaders.length > 0) {
 
             logger.info('Adding response headers', apiResponseHeaders)
             try{

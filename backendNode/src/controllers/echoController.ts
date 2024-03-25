@@ -6,6 +6,14 @@ import {CustomRequest} from "../middleware";
 import ApiDetailsModel from "../models/ApiDetailsModel";
 import websocketServer from "../websocketServer";
 
+interface Message{
+    requestPath: String;
+    requestMethod: String;
+    requestHeaders: any;
+    responseCode: number;
+    responseBody: String;
+    timestamp: String;
+}
 const validatePath = async (req: CustomRequest, res: Response) => {
     const {
         path = '', method = '', headers
@@ -19,8 +27,15 @@ const validatePath = async (req: CustomRequest, res: Response) => {
         }
     }
     if (!DESResponseCode) {
-        const message = `[${new Date().toTimeString().split(' ')[0]}] Req: ${req.method} ${req.path} ${JSON.stringify(req.body)} Res: 400 Invalid request need DESResponseCode header`;
-        websocketServer.sendMessages(message);
+        const consoleMessage: Message = {
+            requestPath: req.path,
+            requestMethod: req.method,
+            requestHeaders: req.headers,
+            responseCode: 400,
+            responseBody: 'Invalid request need DESResponseCode header',
+            timestamp: new Date().toTimeString().split(' ')[0]
+        }
+        websocketServer.sendMessages(JSON.stringify(consoleMessage));
         return res.status(400).json(new ResponseModel('error', 'Invalid request need DESResponseCode header'));
     }
 
@@ -48,7 +63,16 @@ const validatePath = async (req: CustomRequest, res: Response) => {
         const responseHeaders = await responseHeadersRepository.getResponseHeaders(apiDetail[0].id);
 
         responseHeaders.forEach((header: any) => res.setHeader(header.headerName, header.headerValue));
-        const message = `[${new Date().toTimeString().split(' ')[0]}] Req: ${req.method} ${req.path} ${JSON.stringify(req.body)} Res: ${apiResponse.apiResponseCode} ${apiResponse.apiResponseBody}`;        websocketServer.sendMessages(message);
+
+        const consoleMessage: Message = {
+            requestPath: req.path,
+            requestMethod: req.method,
+            requestHeaders: req.headers,
+            responseCode: Number(apiResponse.apiResponseCode),
+            responseBody: apiResponse.apiResponseBody,
+            timestamp: new Date().toTimeString().split(' ')[0]
+        }
+        websocketServer.sendMessages(consoleMessage);
         return res.status(Number(apiResponse.apiResponseCode)).json(responseBody);
     } catch (error) {
         console.error(error);

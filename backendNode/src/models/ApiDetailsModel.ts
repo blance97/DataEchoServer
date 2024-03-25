@@ -3,7 +3,7 @@ class ApiDetailsModel {
     groupId: Number;
     apiMethod: String;
     apiResponseBody: String;
-    apiResponseCode: String;
+    apiResponseCode: Number;
     id?: number;
     apiResponseHeaders?: Array<{ key: string, value: string }>;
 
@@ -15,7 +15,7 @@ class ApiDetailsModel {
         this.groupId = groupId;
         this.apiMethod = apiMethod;
         this.apiResponseBody = apiResponseBody;
-        this.apiResponseCode = apiResponseCode;
+        this.apiResponseCode = Number(apiResponseCode);
         this.id = id;
         this.apiResponseHeaders = headers;
     }

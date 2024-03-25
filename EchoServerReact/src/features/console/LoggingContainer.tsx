@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {Textarea, Text, Button, Box} from "@chakra-ui/react";
-
+import {JsonView, allExpanded, darkStyles, defaultStyles, collapseAllNested} from 'react-json-view-lite';
+import 'react-json-view-lite/dist/index.css';
 
 const LoggingContainer = () => {
     const [logs, setLogs] = useState<String[]>([]);
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const logsEndRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:8081');
@@ -32,30 +33,31 @@ const LoggingContainer = () => {
     }, []);
 
     useEffect(() => {
-        if (textareaRef.current) {
-            textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
+        if (logsEndRef.current) {
+            logsEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [logs]);
 
     return (
-        <Box height="75%">
+        <Box width="100%">
             <Text fontWeight="bold" mb="4">Logs</Text>
-            <Textarea
-                ref={textareaRef}
-                height="50"
-                maxHeight="90%"
-                overflowY="auto"
-                bg="gray.800"
-                color="lime"
-                fontFamily="monospace"
-                border="1px solid lime"
-                p="4"
-                resize="vertical"
-                value={logs.join('\n----------------\n')}
-                readOnly
-            >
-
-            </Textarea>
+            <Box overflowY="auto" maxHeight="60vh">
+                {logs.map((value:any, index) => {
+                    let decodedValue = JSON.parse(value);
+                    if (typeof decodedValue.responseBody === 'string') {
+                        try {
+                            decodedValue.responseBody = JSON.parse(decodedValue.responseBody);
+                        } catch (error) {
+                            // responseBody is not a stringified JSON, do nothing
+                        }
+                    }
+                    return (<Box key={index}>
+                        <Text><b>{decodedValue.timestamp}</b></Text>
+                        <JsonView data={decodedValue} shouldExpandNode={collapseAllNested}/>
+                    </Box>)
+                })}
+                <div ref={logsEndRef} />
+            </Box>
             <Button colorScheme="teal" variant="outline" mt="4" onClick={() => setLogs([])}>
                 Clear
             </Button>

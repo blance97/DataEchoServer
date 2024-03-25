@@ -85,8 +85,10 @@ const GroupContainer: React.FC = () => {
                                 icon={<CloseIcon/>}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    if (group.id) {
-                                        dispatch(deleteGroup(group.id) as any);
+                                    if (window.confirm('Are you sure you want to delete this group?')) {
+                                        if (group.id) {
+                                            dispatch(deleteGroup(group.id) as any);
+                                        }
                                     }
                                 }}
                                 mr={2}/>

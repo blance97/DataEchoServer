@@ -87,8 +87,10 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
 
     const handleDelete = (event: React.MouseEvent) => {
         event.stopPropagation();
-        if (apiDetail.id !== undefined) {
-            deleteApi(apiDetail.id);
+        if (window.confirm('Are you sure you want to delete this API?')) {
+            if (apiDetail.id !== undefined) {
+                deleteApi(apiDetail.id);
+            }
         }
     }
 

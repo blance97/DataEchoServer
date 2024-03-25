@@ -17,10 +17,10 @@ wss.on('listening', () => {
     logger.info('WebSocket server is listening');
 });
 
-const sendMessages = (message: string) => {
+const sendMessages = (message: any) => {
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(message);
+            client.send(JSON.stringify(message));
         }
     });
 }

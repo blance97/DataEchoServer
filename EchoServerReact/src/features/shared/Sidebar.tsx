@@ -62,7 +62,7 @@ const Sidebar = () => {
                         title="Add Group" group={null}/>
             <AddApiModal isOpen={isApiModalOpen} onClose={handleCloseApiModal} onAdd={handleAddApiDetail}
                          groups={groups} apiStatus={apiDetails.status} error={apiDetails.error}/>
-            <LoggingContainer />
+            <LoggingContainer/>
         </Box>
     );
 };
