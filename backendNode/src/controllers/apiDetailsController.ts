@@ -98,7 +98,6 @@ const getApiDetailsfromId = async (req: Request, res: Response) => {
 
 const updateApiDetails = async (req: Request, res: Response) => {
     logger.info('Updating API details', req.body)
-    try {
         const {id, apiName, groupId, apiMethod, apiResponseBody, apiResponseCode} = req.body;
         let responseBody = apiResponseBody;
         if (typeof apiResponseBody === 'object' && apiResponseBody !== null) {
@@ -158,10 +157,7 @@ const updateApiDetails = async (req: Request, res: Response) => {
             return res.status(400).json(new ResponseModel('error', 'Error in updating SQL', null, String(error)));
         }
 
-    } catch (error) {
-        logger.error(error);
-        return res.status(500).json(new ResponseModel('error', 'Failed to update the API details', null, String(error)));
-    }
+
 
 }
 

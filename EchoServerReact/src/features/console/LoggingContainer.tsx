@@ -15,7 +15,6 @@ const LoggingContainer = () => {
         };
 
         ws.onmessage = (event) => {
-            console.log('WebSocket message: ', event.data);
             setLogs((prevLogs: any) => [...prevLogs, event.data]);
         };
 
