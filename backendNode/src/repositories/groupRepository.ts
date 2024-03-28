@@ -49,6 +49,10 @@ const updateGroup = async (groupId: Number, updatedGroup: groupModel) => {
     }
 };
 
+const deleteAllGroups = async () => {
+    return db('groups').del();
+}
+
 export default {
     getAll,
     addGroup,
@@ -57,5 +61,6 @@ export default {
     deleteGroupByName,
     deleteGroupById,
     updateGroup,
-    getGroupId
+    getGroupId,
+    deleteAllGroups
 };
