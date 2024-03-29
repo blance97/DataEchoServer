@@ -24,7 +24,7 @@ const Sidebar = () => {
         if (apiDetails.status === 'idle' && isApiModalOpen && !apiDetails.error) {
             setIsApiModalOpen(false);
         }
-    }, [apiDetails.error, apiDetails.status, isApiModalOpen]);
+    }, [apiDetails.status]);
     const handleOpenApiModal = () => {
         setIsApiModalOpen(true);
     }
