@@ -2,17 +2,13 @@ version: '3'
 
 services:
   backend:
-    build:
-      context: ./backendNode
-      dockerfile: Dockerfile
+    image: blance97/dataechoserver-backend:latest
     ports:
       - "3000:3000"
       - "8081:8081"
 
   frontend:
-    build:
-      context: ./EchoServerReact
-      dockerfile: Dockerfile
+    image: blance97/dataechoserver-frontend:latest
     ports:
       - "8080:80"
     volumes:

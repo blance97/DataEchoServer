@@ -64,3 +64,5 @@ typings/
 /db/
 
 /__pycache__/
+
+PushDocker.sh
