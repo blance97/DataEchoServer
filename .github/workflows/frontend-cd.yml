@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'EchoServerReact/**'
+      - '.github/workflows/frontend-cd.yml'
 
 jobs:
   build:
@@ -37,7 +38,7 @@ jobs:
         with:
           context: ./EchoServerReact
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-frontend:latest,${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-frontend:${{ github.sha }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-frontend:latest,${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-frontend:${{ github.sha | slice(0, 7)}}
       - name: Bump version and push changes
         run: |
           cd EchoServerReact
