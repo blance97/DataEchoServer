@@ -51,4 +51,3 @@ jobs:
           git config --local user.name "GitHub Action"
           npm version patch -m "Bump version to %s"
           git push
-        if: github.event.pull_request.merged == true

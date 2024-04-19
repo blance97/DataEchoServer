@@ -31,10 +31,9 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-backend:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-backend:${{ steps.extract_sha.outputs.short_sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-backend:${{ steps.extract_sha.outputs.sha_short }}
 
       - name: Bump version and push changes
-        if: github.event.pull_request.merged == true
         run: |
           cd backendNode
           git config --local user.email "action@github.com"
