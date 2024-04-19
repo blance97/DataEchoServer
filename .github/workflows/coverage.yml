@@ -22,18 +22,3 @@ jobs:
       - uses: ArtiomTr/jest-coverage-report-action@v2
         with:
           working-directory: ./backendNode
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          jest_coverage_file: './coverage/lcov.info'
-          min_coverage: 80
-          check_only_changed_files: true
-          comment: true
-          comment_title: 'Coverage Report'
-          comment_details: 'Coverage report for this PR'
-          comment_failure: true
-          comment_context: 'Coverage'
-          comment_on_pr: true
-          comment_on_pr_update: true
-          comment_on_pr_update_title: 'Coverage Report Updated'
-          comment_on_pr_update_details: 'Coverage report for this PR has been updated'
-          comment_on_pr_update_failure: true
-          comment_on_pr_update_context: 'Coverage'

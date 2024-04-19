@@ -182,7 +182,7 @@ const deleteApiDetails = async (req: Request, res: Response) => {
 }
 
 const addResponseHeaders = async (req: Request, res: Response) => {
-    try {
+    logger.info('Adding response headers', req.body)
         const {apiResponseHeaders, apiId} = req.body;
         if (!apiResponseHeaders || !apiId) return res.status(400).json(new ResponseModel('error', 'Invalid request'));
 
@@ -197,15 +197,12 @@ const addResponseHeaders = async (req: Request, res: Response) => {
             try {
                 await responseHeadersRepository.addResponseHeader(key, String(value), apiId);
             } catch (error) {
-                console.error(error);
+                logger.error(error);
                 return res.status(500).json(new ResponseModel('error', 'Failed to add the response headers', null, error));
             }
         }
         return res.status(201).json(new ResponseModel('success', 'Response headers added successfully'));
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json(new ResponseModel('error', 'Failed to add the response header', null, error));
-    }
+
 
 }
 
@@ -236,7 +233,7 @@ const deleteResponseHeaders = async (req: Request, res: Response) => {
         await responseHeadersRepository.deleteResponseHeader(headerId);
         return res.status(200).json(new ResponseModel('success', `Response header with id ${headerId} deleted successfully`));
     } catch (error) {
-        console.error(error);
+        logger.error(error);
         return res.status(500).json(new ResponseModel('error', 'Failed to delete the response header', null, String(error)));
     }
 
@@ -251,7 +248,7 @@ const updateResponseHeaders = async (req: Request, res: Response) => {
         await responseHeadersRepository.updateResponseHeader(headerId, headerName, headerValue);
         return res.status(200).json(new ResponseModel('success', `Response header with id ${headerId} updated successfully`));
     } catch (error) {
-        console.error(error);
+        logger.error(error)
         return res.status(500).json(new ResponseModel('error', 'Failed to update the response header', null, String(error)));
     }
 

@@ -1,4 +1,11 @@
-import { addApiDetails, getAllApiDetails, getApiDetailsfromId, updateApiDetails, deleteApiDetails } from '../../src/controllers/apiDetailsController';
+import {
+    addApiDetails,
+    getAllApiDetails,
+    getApiDetailsfromId,
+    updateApiDetails,
+    deleteApiDetails,
+    addResponseHeaders, getResponseHeaders, deleteResponseHeaders, updateResponseHeaders
+} from '../../src/controllers/apiDetailsController';
 import { Request, Response } from 'express';
 import apiDetailsRepository from '../../src/repositories/apiDetailsRepository'
 import responseHeadersRepository from '../../src/repositories/responseHeadersRepository';
@@ -6,6 +13,7 @@ import responseHeadersRepository from '../../src/repositories/responseHeadersRep
 import mocked = jest.mocked;
 import ApiDetailsModel from "../../src/models/ApiDetailsModel";
 import HeaderModel from "../../src/models/headerModel";
+import clearAllMocks = jest.clearAllMocks;
 
 jest.mock('../../src/repositories/apiDetailsRepository');
 jest.mock('../../src/repositories/responseHeadersRepository');
@@ -29,7 +37,7 @@ describe('API Details Controller', () => {
         } as unknown as Response;
 
         next = jest.fn();
-
+        clearAllMocks();
         apiDetailsModel = new ApiDetailsModel('apiName', 1, 'apiMethod', 'apiResponseBody', 'apiResponseCode');
     });
 
@@ -417,6 +425,189 @@ describe('API Details Controller', () => {
 
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Failed to delete the API details' }));
+        });
+    });
+
+    describe('addResponseHeaders', () => {
+        it('should return 400 if response headers data is invalid', async () => {
+            req.body = {
+                apiId: '',
+                headers: []
+            };
+
+            await addResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Invalid request' }));
+        });
+
+        it('should return 400 if response headers are invalid', async () => {
+            req.body = {
+                apiId: '1',
+                headers: [{ key: '', value: '' }]
+            };
+
+            await addResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Invalid request' }));
+        });
+
+        it('should return 500 if cannot add response headers', async () => {
+            req.body = {
+                apiId: '1',
+                apiResponseHeaders: [{ key: 'key', value: 'value' }]
+            };
+
+            mocked(responseHeadersRepository.addResponseHeader).mockRejectedValue(new Error('Test error'));
+            await addResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Failed to add the response headers' }));
+        });
+
+        it('should return 201 if response headers are added successfully', async () => {
+            mocked(responseHeadersRepository.addResponseHeaders).mockResolvedValue([1]);
+            mocked(responseHeadersRepository.addResponseHeader).mockResolvedValue([1]);
+            req.body = {
+                apiId: '1',
+                apiResponseHeaders: [{ key: 'key', value: 'value' }]
+            };
+
+            await addResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Response headers added successfully' }));
+        });
+
+        it('should return 404 if API details are not found for responseHeaders', async () => {
+            mocked(apiDetailsRepository.checkApiDetailExists).mockRejectedValue(new Error('API details not found'));
+            req.body = {
+                apiId: '1',
+                apiResponseHeaders: [{ key: 'key', value: 'value' }]
+            };
+
+            await addResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'API details not found' }));
+        });
+    });
+    describe('getResponseHeaders', () => {
+        it('should return 400 if API id is invalid', async () => {
+            req.query.apiId = '';
+
+            await getResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Invalid request parameters for API id' }));
+        });
+
+        it('should return 200 with all response headers', async () => {
+            mocked(responseHeadersRepository.getResponseHeaders).mockResolvedValue([{ headerName: 'key', headerValue: 'value' }]);
+            mocked(apiDetailsRepository.checkApiDetailExists).mockResolvedValue(undefined);
+            req.params.apiId = '1';
+
+            await getResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Response headers' }));
+        });
+
+        it('should return 500 if cannot get response headers', async () => {
+            mocked(responseHeadersRepository.getResponseHeaders).mockRejectedValue(new Error('Test error'));
+            req.params.apiId = '1';
+
+            await getResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Failed to get the response headers' }));
+        });
+
+        it('should return 404 if API details are not found for responseHeaders', async () => {
+            mocked(apiDetailsRepository.checkApiDetailExists).mockRejectedValue(new Error('API details not found'));
+            req.params.apiId = '1';
+
+            await getResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'API details not found' }));
+        });
+    });
+
+    describe('deleteResponseHeaders', () => {
+        it('should return 400 if API id is invalid', async () => {
+            req.params.headerId = '';
+
+            await deleteResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Invalid request parameters for header id' }));
+        });
+
+
+        it('should return 200 if response headers are deleted successfully', async () => {
+            mocked(apiDetailsRepository.checkApiDetailExists).mockResolvedValue(undefined);
+            mocked(responseHeadersRepository.deleteResponseHeaders).mockResolvedValue(new Promise((resolve) => resolve(1)));
+            req.params.headerId = '1';
+
+            await deleteResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Response header with id 1 deleted successfully' }));
+        });
+
+        it('should return 500 if cannot delete response headers', async () => {
+            mocked(responseHeadersRepository.deleteResponseHeader).mockRejectedValue(new Error('Test error'));
+            req.params.headerId = '1';
+
+            await deleteResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Failed to delete the response header' }));
+        });
+    });
+
+    describe('updateResponseHeaders', () => {
+        it('should return 400 if response headers data is invalid', async () => {
+            req.params.headerId = '1';
+            req.body = {
+                headerName: '',
+                headerValue: ''
+            };
+
+            await updateResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Invalid request' }));
+        });
+
+        it('should return 500 if cannot update response headers', async () => {
+            req.params.headerId = '1';
+            req.body = {
+                headerName: 'key',
+                headerValue: 'value'
+            };
+
+            mocked(responseHeadersRepository.updateResponseHeader).mockRejectedValue(new Error('Test error'));
+            await updateResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Failed to update the response header' }));
+        });
+
+        it('should return 200 if response headers are updated successfully', async () => {
+            mocked(responseHeadersRepository.updateResponseHeader).mockResolvedValue(new Promise((resolve) => resolve(1)));
+            req.params.headerId = '1';
+            req.body = {
+                headerName: 'key',
+                headerValue: 'value'
+            };
+
+            await updateResponseHeaders(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Response header with id 1 updated successfully' }));
         });
     });
 });
