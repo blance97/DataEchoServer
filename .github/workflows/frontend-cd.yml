@@ -41,7 +41,9 @@ jobs:
         with:
           context: ./EchoServerReact
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-frontend:latest,${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-frontend:${{ steps.extract_sha.outputs.sha_short }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-frontend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-frontend:${{ steps.extract_sha.outputs.sha_short }}
       - name: Bump version and push changes
         run: |
           cd EchoServerReact
