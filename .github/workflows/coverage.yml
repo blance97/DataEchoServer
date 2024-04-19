@@ -7,6 +7,15 @@ on:
 jobs:
   coverage:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backendNode
     steps:
       - uses: actions/checkout@v3
       - uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          jest_coverage_report_path: './coverage/lcov.info'
+          comment: true
+          fail: true
+          threshold: 80
