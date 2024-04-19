@@ -21,6 +21,7 @@ jobs:
         run: npm install
       - uses: ArtiomTr/jest-coverage-report-action@v2
         with:
+          working-directory: ./backendNode
           github_token: ${{ secrets.GITHUB_TOKEN }}
           jest_coverage_file: './coverage/lcov.info'
           min_coverage: 80
