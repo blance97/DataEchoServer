@@ -1,0 +1,39 @@
+name: 'coverage'
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backendNode
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      - name: Install dependencies
+        run: npm install
+      - uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          working-directory: ./backendNode
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          jest_coverage_file: './coverage/lcov.info'
+          min_coverage: 80
+          check_only_changed_files: true
+          comment: true
+          comment_title: 'Coverage Report'
+          comment_details: 'Coverage report for this PR'
+          comment_failure: true
+          comment_context: 'Coverage'
+          comment_on_pr: true
+          comment_on_pr_update: true
+          comment_on_pr_update_title: 'Coverage Report Updated'
+          comment_on_pr_update_details: 'Coverage report for this PR has been updated'
+          comment_on_pr_update_failure: true
+          comment_on_pr_update_context: 'Coverage'
