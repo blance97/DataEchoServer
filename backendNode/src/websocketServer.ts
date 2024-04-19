@@ -7,14 +7,18 @@ wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         logger.info('received: %s', message);
     });
+
+    ws.on('error', (error) => {
+        logger.error('Error occurred: ', error);
+    });
 });
 
 wss.on('listening', () => {
     logger.info('WebSocket server is listening');
 });
 
-wss.on('listening', () => {
-    logger.info('WebSocket server is listening');
+wss.on('error', (error) => {
+    logger.error('Error occurred: ', error);
 });
 
 const sendMessages = (message: any) => {

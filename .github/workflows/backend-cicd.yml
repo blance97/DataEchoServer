@@ -1,0 +1,52 @@
+name: 'Backend CI/CD'
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+        - 'backendNode/**'
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backendNode
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      - name: Install dependencies
+        run: npm install
+      - uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          working-directory: ./backendNode
+
+  docker:
+    needs: coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push backendNode
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backendNode
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-backend:latest,${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-backend:${{ github.sha }}
+      - name: Bump version and push changes
+        run: |
+          cd backendNode
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          npm version patch -m "Bump version to %s"
+          git push
