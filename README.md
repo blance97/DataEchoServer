@@ -7,8 +7,6 @@ The application also includes a backend server written in Node.js with Express. 
 
 Please note that the routes starting with `/api/des/*` are reserved for internal use and should not be called directly. These routes are used for managing the API details.
 
-Sure, here's the updated "Getting Started" section:
-
 ## Getting Started
 
 To get started with this project, you need to clone the repository and then run the `deploy.sh` script. Here are the steps:
