@@ -1,0 +1,9 @@
+[
+  "JSON",
+  "XML",
+  "HTML",
+  "Text",
+  "CSV",
+  "MessagePack",
+  "YAML"
+]

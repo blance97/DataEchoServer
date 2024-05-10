@@ -18,6 +18,7 @@ import {
 import React, {useEffect, useState} from "react";
 import ApiDetailModel from "../../shared/models/apiDetailModel";
 import {DeleteIcon} from "@chakra-ui/icons";
+import SupportedHTTPResponseBodyFormats from "../../shared/SupportedHTTPResponseBodyFormats.json";
 
 interface ApiDetailCardProps {
     apiDetail: ApiDetailModel;
@@ -32,7 +33,8 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
     const [responseCode, setResponseCode] = useState(apiDetail.apiResponseCode);
     const [originalResponseCode, setOriginalResponseCode] = useState(apiDetail.apiResponseCode);
 
-    const [responseFormat, setResponseFormat] = useState('JSON');
+    const [responseBodyType, setResponseBodyType] = useState(apiDetail.apiResponseBodyType);
+    const [originalResponseBodyType, setOriginalResponseBodyType] = useState(apiDetail.apiResponseBodyType);
 
     const [responseBody, setResponseBody] = useState(apiDetail.apiResponseBody);
     const [originalResponseBody, setOriginalResponseBody] = useState(apiDetail.apiResponseBody);
@@ -48,6 +50,9 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
 
         setResponseCode(apiDetail.apiResponseCode);
         setOriginalResponseCode(apiDetail.apiResponseCode);
+
+        setResponseBodyType(apiDetail.apiResponseBodyType);
+        setOriginalResponseBodyType(apiDetail.apiResponseBodyType);
 
         setResponseBody(apiDetail.apiResponseBody);
         setOriginalResponseBody(apiDetail.apiResponseBody);
@@ -79,6 +84,7 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
             ...apiDetail,
             apiName: apiName,
             apiMethod: httpMethod,
+            apiResponseBodyType: responseBodyType,
             apiResponseCode: responseCode,
             apiResponseBody: responseBody,
             apiResponseHeaders: responseHeaders
@@ -133,7 +139,9 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
                     <Box borderWidth="1px" bg="gray.50" borderRadius="md" p={4} my={2} boxShadow="base" width="100%">
                         <FormLabel>API Name</FormLabel>
                         <Input mb={2} backgroundColor={apiName !== originalApiName ? '#F6E05E' : 'white'}
-                               value={apiName} onChange={(e) => setApiName(e.target.value)}/>
+                               value={apiName.startsWith('/') ? apiName : '/' + apiName}
+                               onChange={(e) => setApiName(e.target.value)}/>
+
 
                         <FormLabel>HTTP Method</FormLabel>
                         <Select value={httpMethod}
@@ -154,10 +162,12 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
                     </Box>
                     <Box borderWidth="1px" bg="gray.50" borderRadius="md" p={4} my={2} boxShadow="base" width="100%">
                         <FormLabel>Response Format</FormLabel>
-                        <Select placeholder="Select response format" value={responseFormat}
-                                onChange={(e) => setResponseFormat(e.target.value)}>
-                            <option value="JSON">JSON</option>
-                            <option value="String">String</option>
+                        <Select
+                            backgroundColor={responseBodyType !== originalResponseBodyType ? '#F6E05E' : 'white'}
+                            value={responseBodyType} onChange={(e) => setResponseBodyType(e.target.value)}>
+                            {SupportedHTTPResponseBodyFormats.map(format => (
+                                <option key={format} value={format}>{format}</option>
+                            ))}
                         </Select>
                         <FormLabel mt={4}>Response Body</FormLabel>
                         <Textarea placeholder="Response Body"
