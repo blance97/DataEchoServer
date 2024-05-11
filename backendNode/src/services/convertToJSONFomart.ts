@@ -33,11 +33,12 @@ async function convertToJSONFormat(groups: GroupModel[]) {
             name,
             description,
             apiDetails: await Promise.all(apiDetails.map(async (apiDetail: any) => {
-                const {apiName, apiMethod, apiResponseBody, apiResponseCode} = apiDetail;
+                const {apiName, apiMethod, apiResponseBodyType, apiResponseBody, apiResponseCode} = apiDetail;
                 const responseHeaders = await fetchResponseHeadersFromDatabase(apiName);
                 return {
                     apiName,
                     apiMethod,
+                    apiResponseBodyType,
                     apiResponseBody,
                     apiResponseCode,
                     responseHeaders,
@@ -50,7 +51,7 @@ async function convertToJSONFormat(groups: GroupModel[]) {
 const exportToJson = async () => {
     const groupsFromDatabase = await fetchGroupsFromDatabase();
     const data = await convertToJSONFormat(groupsFromDatabase);
-    return { "groups": data };
+    return {"groups": data};
 }
 
 export default {exportToJson}

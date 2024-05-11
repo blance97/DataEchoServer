@@ -38,7 +38,7 @@ describe('API Details Controller', () => {
 
         next = jest.fn();
         clearAllMocks();
-        apiDetailsModel = new ApiDetailsModel('apiName', 1, 'apiMethod', 'apiResponseBody', 'apiResponseCode');
+        apiDetailsModel = new ApiDetailsModel('apiName', 1, 'apiMethod', "Text", 'apiResponseBody', 'apiResponseCode');
     });
 
     afterEach(() => {
@@ -53,6 +53,7 @@ describe('API Details Controller', () => {
                 apiName: '',
                 groupId: '',
                 apiMethod: '',
+                apiResponseBodyType: '',
                 apiResponseBody: '',
                 apiResponseCode: '',
                 apiResponseHeaders: []
@@ -69,6 +70,7 @@ describe('API Details Controller', () => {
                 apiName: 'apiName',
                 groupId: 1,
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: -1,
                 apiResponseHeaders: []
@@ -80,11 +82,29 @@ describe('API Details Controller', () => {
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Invalid response code' }));
         });
 
+        it('should return 400 if response body type is invalid', async () => {
+            req.body = {
+                apiName: 'apiName',
+                groupId: 1,
+                apiMethod: 'apiMethod',
+                apiResponseBodyType: 'invalidType',
+                apiResponseBody: 'apiResponseBody',
+                apiResponseCode: 200,
+                apiResponseHeaders: []
+            };
+
+            await addApiDetails(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Error: Unsupported format: invalidType' }));
+        });
+
         it('should return 400 if response headers are not an array', async () => {
             req.body = {
                 apiName: 'apiName',
                 groupId: 'groupId',
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: '200',
                 apiResponseHeaders: 'invalidHeaders'
@@ -101,6 +121,7 @@ describe('API Details Controller', () => {
                 apiName: 'apiName',
                 groupId: 'groupId',
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: '200',
                 apiResponseHeaders: [{ key: '', value: '' }]
@@ -114,12 +135,13 @@ describe('API Details Controller', () => {
 
         it('should return 500 if cannot add response headers', async () => {
             mocked(apiDetailsRepository.addApiDetail).mockResolvedValue([{ id: 1 }]);
-            mocked(responseHeadersRepository.addResponseHeaders).mockRejectedValue(new Error('Test error'));
+            mocked(responseHeadersRepository.addResponseHeaders).mockRejectedValue(new Error('Text error'));
             const headers: HeaderModel[] = [{ headerName: 'key', headerValue: 'value' }];
             req.body = {
                 apiName: 'apiName',
                 groupId: 1,
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: 200,
                 apiResponseHeaders: headers
@@ -132,11 +154,12 @@ describe('API Details Controller', () => {
         });
 
         it('should return 500 if cannot add API details', async () => {
-            mocked(apiDetailsRepository.addApiDetail).mockRejectedValue(new Error('Test error'));
+            mocked(apiDetailsRepository.addApiDetail).mockRejectedValue(new Error('Text error'));
             req.body = {
                 apiName: 'apiName',
                 groupId: 'groupId',
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: '200',
                 apiResponseHeaders: []
@@ -154,6 +177,7 @@ describe('API Details Controller', () => {
                 apiName: 'apiName',
                 groupId: 'groupId',
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: '200',
                 apiResponseHeaders: []
@@ -178,7 +202,7 @@ describe('API Details Controller', () => {
         });
 
         it('should return 500 if cannot get API details', async () => {
-            mocked(apiDetailsRepository.getAllApiDetails).mockRejectedValue(new Error('Test error'));
+            mocked(apiDetailsRepository.getAllApiDetails).mockRejectedValue(new Error('Text error'));
 
             await getAllApiDetails(req, res);
 
@@ -209,7 +233,7 @@ describe('API Details Controller', () => {
         });
 
         it('should return 500 if cannot get API details', async () => {
-            mocked(apiDetailsRepository.getApiDetailFromId).mockRejectedValue(new Error('Test error'));
+            mocked(apiDetailsRepository.getApiDetailFromId).mockRejectedValue(new Error('Text error'));
             req.query.apiId = '1';
 
             await getApiDetailsfromId(req, res);
@@ -244,6 +268,7 @@ describe('API Details Controller', () => {
                 apiName: 'apiName',
                 groupId: 'groupId',
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: {key: 'value'},
                 apiResponseCode: '200',
                 apiResponseHeaders: []
@@ -255,6 +280,24 @@ describe('API Details Controller', () => {
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({message: 'API details updated successfully'}));
         });
 
+        it('should return 400 if response body type is invalid', async () => {
+            req.body = {
+                id: 1,
+                apiName: 'apiName',
+                groupId: 1,
+                apiMethod: 'apiMethod',
+                apiResponseBodyType: 'invalidType',
+                apiResponseBody: 'apiResponseBody',
+                apiResponseCode: 200,
+                apiResponseHeaders: []
+            };
+
+            await updateApiDetails(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({message: 'Error: Unsupported format: invalidType'}));
+        });
+
         it('should return 404 if API details are not found', async () => {
             mocked(apiDetailsRepository.updateApiDetail).mockResolvedValue(new Promise((resolve) => resolve(0)));
             mocked(apiDetailsRepository.checkApiDetailExists).mockRejectedValue(new Error('API details not found'));
@@ -263,6 +306,7 @@ describe('API Details Controller', () => {
                 apiName: 'apiName',
                 groupId: 'groupId',
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: '200',
                 apiResponseHeaders: []
@@ -281,6 +325,7 @@ describe('API Details Controller', () => {
                 apiName: 'apiName',
                 groupId: 1,
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: -1,
                 apiResponseHeaders: []
@@ -298,6 +343,7 @@ describe('API Details Controller', () => {
                 apiName: 'apiName',
                 groupId: 'groupId',
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: '200',
                 apiResponseHeaders: 'invalidHeaders'
@@ -315,6 +361,7 @@ describe('API Details Controller', () => {
                 apiName: 'apiName',
                 groupId: 'groupId',
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: '200',
                 apiResponseHeaders: [{key: '', value: ''}]
@@ -336,6 +383,7 @@ describe('API Details Controller', () => {
                 apiName: 'apiName',
                 groupId: 'groupId',
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: '200',
                 apiResponseHeaders: headers
@@ -350,13 +398,14 @@ describe('API Details Controller', () => {
         it('should return 500 if cannot add response headers', async () => {
             mocked(apiDetailsRepository.updateApiDetail).mockResolvedValue(new Promise((resolve) => resolve(1)));
             mocked(apiDetailsRepository.checkApiDetailExists).mockResolvedValue(undefined);
-            mocked(responseHeadersRepository.addResponseHeader).mockRejectedValue(new Error('Test error'));
+            mocked(responseHeadersRepository.addResponseHeader).mockRejectedValue(new Error('Text error'));
             const headers: HeaderModel[] = [{headerName: 'key', headerValue: 'value'}];
             req.body = {
                 id: 1,
                 apiName: 'apiName',
                 groupId: 1,
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: 200,
                 apiResponseHeaders: headers
@@ -369,12 +418,13 @@ describe('API Details Controller', () => {
         });
 
         it('should return 400 updateApiDetail throws an error', async () => {
-            mocked(apiDetailsRepository.updateApiDetail).mockRejectedValue(new Error('Test error'));
+            mocked(apiDetailsRepository.updateApiDetail).mockRejectedValue(new Error('Text error'));
             req.body = {
                 id: 1,
                 apiName: 'apiName',
                 groupId: 'groupId',
                 apiMethod: 'apiMethod',
+                apiResponseBodyType: 'Text',
                 apiResponseBody: 'apiResponseBody',
                 apiResponseCode: '200',
                 apiResponseHeaders: []
@@ -418,7 +468,7 @@ describe('API Details Controller', () => {
         });
 
         it('should return 500 if cannot delete API details', async () => {
-            mocked(apiDetailsRepository.deleteApiDetail).mockRejectedValue(new Error('Test error'));
+            mocked(apiDetailsRepository.deleteApiDetail).mockRejectedValue(new Error('Text error'));
             req.params.id = '1';
 
             await deleteApiDetails(req, res);
@@ -459,7 +509,7 @@ describe('API Details Controller', () => {
                 apiResponseHeaders: [{ key: 'key', value: 'value' }]
             };
 
-            mocked(responseHeadersRepository.addResponseHeader).mockRejectedValue(new Error('Test error'));
+            mocked(responseHeadersRepository.addResponseHeader).mockRejectedValue(new Error('Text error'));
             await addResponseHeaders(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
@@ -515,7 +565,7 @@ describe('API Details Controller', () => {
         });
 
         it('should return 500 if cannot get response headers', async () => {
-            mocked(responseHeadersRepository.getResponseHeaders).mockRejectedValue(new Error('Test error'));
+            mocked(responseHeadersRepository.getResponseHeaders).mockRejectedValue(new Error('Text error'));
             req.params.apiId = '1';
 
             await getResponseHeaders(req, res);
@@ -558,7 +608,7 @@ describe('API Details Controller', () => {
         });
 
         it('should return 500 if cannot delete response headers', async () => {
-            mocked(responseHeadersRepository.deleteResponseHeader).mockRejectedValue(new Error('Test error'));
+            mocked(responseHeadersRepository.deleteResponseHeader).mockRejectedValue(new Error('Text error'));
             req.params.headerId = '1';
 
             await deleteResponseHeaders(req, res);
@@ -589,7 +639,7 @@ describe('API Details Controller', () => {
                 headerValue: 'value'
             };
 
-            mocked(responseHeadersRepository.updateResponseHeader).mockRejectedValue(new Error('Test error'));
+            mocked(responseHeadersRepository.updateResponseHeader).mockRejectedValue(new Error('Text error'));
             await updateResponseHeaders(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);

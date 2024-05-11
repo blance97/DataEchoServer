@@ -29,6 +29,7 @@ const initializeDatabase = async () => {
             table.string('api_name');
             table.string('api_method');
             table.text('api_response_body');
+            table.text('api_response_body_type')
             table.integer('api_response_code');
             table.unique(['api_name', 'api_method', 'api_response_code']);
             table.foreign('group_id').references('groups.id').onDelete('CASCADE');

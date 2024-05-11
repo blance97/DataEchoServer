@@ -23,6 +23,7 @@ import {GroupModel} from "./models/groupModel";
 import ApiDetailModel from "./models/apiDetailModel";
 import HeaderModel from "./models/HeaderModel";
 import HTTPResponseCodes from './HTTPResponseCodes.json';
+import SupportedHTTPResponseBodyFormats from './SupportedHTTPResponseBodyFormats.json';
 
 const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
     isOpen: boolean,
@@ -34,6 +35,7 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
 }) => {
     const [apiMethod, setApiMethod] = useState('GET');
     const [apiName, setApiName] = useState('');
+    const [apiResponseBodyType, setApiResponseBodyType] = useState('JSON');
     const [apiResponse, setApiResponse] = useState('');
     const [apiResponseCode, setApiResponseCode] = useState(200);
     const [headers, setHeaders] = useState<HeaderModel[]>([{headerName: '', headerValue: ''}]);
@@ -49,6 +51,7 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
             // Clear the form fields
             setApiMethod('GET');
             setApiName('');
+            setApiResponseBodyType('JSON');
             setApiResponse('');
             setApiResponseCode(200);
             setHeaders([{headerName: '', headerValue: ''}]);
@@ -91,6 +94,13 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
             setApiNameError('');
         }
 
+        if (!apiResponseBodyType) {
+            setApiResponseError('API Response Body Type is required');
+            isValid = false;
+        } else {
+            setApiResponseError('');
+        }
+
         if (!apiResponse) {
             setApiResponseError('API Response is required');
             isValid = false;
@@ -109,6 +119,7 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
             const apiDetails: ApiDetailModel = {
                 apiMethod: apiMethod,
                 apiName: apiName,
+                apiResponseBodyType: apiResponseBodyType,
                 apiResponseBody: apiResponse,
                 apiResponseCode: apiResponseCode,
                 groupId: selectedGroup,
@@ -152,17 +163,26 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
                     </FormControl>
                     <FormControl mt={2}>
                         <FormLabel>API Name</FormLabel>
-                        <Input value={apiName} onChange={(e) => setApiName(e.target.value)}/>
+                        <Input value={apiName.startsWith('/') ? apiName : '/' + apiName} onChange={(e) => setApiName(e.target.value)}/>
                         {apiNameError && <Text color="red.500">{apiNameError}</Text>}
                     </FormControl>
                     <FormControl mt={2}>
-                        <FormLabel>API Response</FormLabel>
+                        <FormLabel>API Response Body Type</FormLabel>
+                        <Select value={apiResponseBodyType} onChange={(e) => setApiResponseBodyType(e.target.value)}>
+                            {SupportedHTTPResponseBodyFormats.map(format => (
+                                <option key={format} value={format}>{format}</option>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <FormControl mt={2}>
+                        <FormLabel>API Response Body</FormLabel>
                         <Input value={apiResponse} onChange={(e) => setApiResponse(e.target.value)}/>
                         {apiResponseError && <Text color="red.500">{apiResponseError}</Text>}
                     </FormControl>
                     <FormControl mt={2}>
                         <FormLabel>API Response Code</FormLabel>
-                        <Input placeholder="Filter response codes" value={filterTerm} onChange={(e) => setFilterTerm(e.target.value)} />
+                        <Input placeholder="Filter response codes" value={filterTerm}
+                               onChange={(e) => setFilterTerm(e.target.value)}/>
                         <Select value={apiResponseCode} onChange={(e) => setApiResponseCode(Number(e.target.value))}>
                             {Object.entries(HTTPResponseCodes)
                                 .filter(([code, details]) => `${code} - ${details.message}`.includes(filterTerm))

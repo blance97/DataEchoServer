@@ -16,6 +16,7 @@ const groupSchema = Joi.object({
                     apiName: Joi.string().required(),
                     apiMethod: Joi.string().valid('GET', 'POST', 'PUT', 'DELETE').required(),
                     apiResponseBody: Joi.string().required(),
+                    apiResponseBodyType: Joi.string().required(),
                     apiResponseCode: Joi.number().required(),
                     responseHeaders: Joi.array().items(
                         Joi.object({
@@ -28,7 +29,6 @@ const groupSchema = Joi.object({
         })
     ).required(),
 });
-
 const insertData = async(jsonData: any) => {
     const { error } = groupSchema.validate(jsonData);
     if (error) {
@@ -50,6 +50,7 @@ const insertData = async(jsonData: any) => {
                     apiName: apiDetail.apiName,
                     apiMethod: apiDetail.apiMethod,
                     apiResponseBody: apiDetail.apiResponseBody,
+                    apiResponseBodyType: apiDetail.apiResponseBodyType,
                     apiResponseCode: apiDetail.apiResponseCode,
                 });
 

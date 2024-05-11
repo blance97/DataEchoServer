@@ -5,16 +5,36 @@ import ApiDetailsModel from "../models/ApiDetailsModel";
 import responseHeadersRepository from "../repositories/responseHeadersRepository";
 import HTTPResponseCodes from "../data/HTTPResponseCodes.json";
 import logger from "../loggers";
+import {getStringFromResponseBody} from "../utils/verifyAPIResponseBodyType";
+
 
 const addApiDetails = async (req: Request, res: Response) => {
     logger.info('Adding API details')
     try {
-        const {apiName, groupId, apiMethod, apiResponseBody, apiResponseCode, apiResponseHeaders} = req.body;
-        const newApiDetail: ApiDetailsModel = new ApiDetailsModel(apiName, groupId, apiMethod, apiResponseBody, apiResponseCode);
+        const {
+            apiName,
+            groupId,
+            apiMethod,
+            apiResponseBodyType,
+            apiResponseBody,
+            apiResponseCode,
+            apiResponseHeaders
+        } = req.body;
+        const newApiDetail: ApiDetailsModel = new ApiDetailsModel(apiName, groupId, apiMethod, apiResponseBodyType, apiResponseBody, apiResponseCode);
+
         if (!newApiDetail.isValid()) {
             logger.error('Invalid API details data');
-            return res.status(400).json(new ResponseModel('error', 'Invalid API details data'));
+            return res.status(400).json(new ResponseModel('error', 'Invalid API details data', null, 'Invalid API details data'));
         }
+
+        try {
+            newApiDetail.apiResponseBody = getStringFromResponseBody(apiResponseBody, apiResponseBodyType);
+        } catch (error) {
+            logger.error(String(error));
+            return res.status(400).json(new ResponseModel('error', String(error), null, error));
+        }
+
+
         if (!(apiResponseCode in HTTPResponseCodes)) {
             logger.error('Invalid response code');
             return res.status(400).json(new ResponseModel('error', 'Invalid response code'));
@@ -26,7 +46,7 @@ const addApiDetails = async (req: Request, res: Response) => {
             return res.status(400).json(new ResponseModel('error', 'Invalid response headers data'));
         }
 
-        for(const header of apiResponseHeaders){
+        for (const header of apiResponseHeaders) {
             const {headerName, headerValue} = header;
             if (!headerName || !headerValue) return res.status(400).json(new ResponseModel('error', 'Invalid response headers data'));
         }
@@ -39,7 +59,7 @@ const addApiDetails = async (req: Request, res: Response) => {
         if (apiResponseHeaders && apiResponseHeaders.length > 0) {
 
             logger.info('Adding response headers', apiResponseHeaders)
-            try{
+            try {
                 await responseHeadersRepository.addResponseHeaders(apiResponseHeaders, apiDetailId);
             } catch (error) {
                 logger.error(error);
@@ -66,7 +86,7 @@ const getAllApiDetails = async (req: Request, res: Response) => {
         let apiDetailsArray: ApiDetailsModel[] = [];
         for (const apiDetail of apiDetails) {
             const responseHeaders = await responseHeadersRepository.getResponseHeaders(apiDetail.id);
-            apiDetailsArray.push(new ApiDetailsModel(apiDetail.apiName, apiDetail.groupId, apiDetail.apiMethod, apiDetail.apiResponseBody, apiDetail.apiResponseCode, apiDetail.id, responseHeaders));
+            apiDetailsArray.push(new ApiDetailsModel(apiDetail.apiName, apiDetail.groupId, apiDetail.apiMethod, apiDetail.apiResponseBodyType, apiDetail.apiResponseBody, apiDetail.apiResponseCode, apiDetail.id, responseHeaders));
         }
         return res.status(200).json(new ResponseModel('success', 'All API details', apiDetailsArray));
     } catch (error) {
@@ -98,65 +118,69 @@ const getApiDetailsfromId = async (req: Request, res: Response) => {
 
 const updateApiDetails = async (req: Request, res: Response) => {
     logger.info('Updating API details', req.body)
-        const {id, apiName, groupId, apiMethod, apiResponseBody, apiResponseCode} = req.body;
-        let responseBody = apiResponseBody;
-        if (typeof apiResponseBody === 'object' && apiResponseBody !== null) {
-            responseBody = JSON.stringify(apiResponseBody);
-        }
-        const apiDetail: ApiDetailsModel = new ApiDetailsModel(apiName, groupId, apiMethod, responseBody, apiResponseCode, id);
-        if (!apiDetail.isValid()) {
-            logger.error('Invalid API details data');
-            return res.status(400).json(new ResponseModel('error', 'Invalid API details data'));
-        }
+    const {id, apiName, groupId, apiMethod, apiResponseBodyType, apiResponseBody, apiResponseCode} = req.body;
 
-        try {
-            await apiDetailsRepository.checkApiDetailExists(id);
-        } catch (error) {
-            logger.error(error);
-            return res.status(404).json(new ResponseModel('error', 'API details not found', null, String(error)));
-        }
+    const apiDetail: ApiDetailsModel = new ApiDetailsModel(apiName, groupId, apiMethod, apiResponseBodyType, apiResponseBody, apiResponseCode, id);
+    if (!apiDetail.isValid()) {
+        logger.error('Invalid API details data');
+        return res.status(400).json(new ResponseModel('error', 'Invalid API details data'));
+    }
 
-        if (!(apiResponseCode in HTTPResponseCodes)) {
-            logger.error('Invalid response code');
-            return res.status(400).json(new ResponseModel('error', 'Invalid response code'));
-        }
+    try {
+        await apiDetailsRepository.checkApiDetailExists(id);
+    } catch (error) {
+        logger.error(error);
+        return res.status(404).json(new ResponseModel('error', 'API details not found', null, String(error)));
+    }
 
-        //update response headers
-        if (req.body.apiResponseHeaders) {
-            const apiResponseHeaders = req.body.apiResponseHeaders;
-            if (!Array.isArray(apiResponseHeaders)) {
+    if (!(apiResponseCode in HTTPResponseCodes)) {
+        logger.error('Invalid response code');
+        return res.status(400).json(new ResponseModel('error', 'Invalid response code'));
+    }
+
+    try {
+        apiDetail.apiResponseBody = getStringFromResponseBody(apiResponseBody, apiResponseBodyType);
+    } catch (error) {
+        logger.error(String(error));
+        return res.status(400).json(new ResponseModel('error', String(error), null, error));
+    }
+
+
+    //update response headers
+    if (req.body.apiResponseHeaders) {
+        const apiResponseHeaders = req.body.apiResponseHeaders;
+        if (!Array.isArray(apiResponseHeaders)) {
+            logger.error('Invalid response headers data');
+            return res.status(400).json(new ResponseModel('error', 'Invalid response headers data'));
+        }
+        for (const header of apiResponseHeaders) {
+            const {headerName, headerValue} = header;
+            if (!headerName || !headerValue) {
                 logger.error('Invalid response headers data');
                 return res.status(400).json(new ResponseModel('error', 'Invalid response headers data'));
             }
+        }
+        try {
+            await responseHeadersRepository.deleteResponseHeaders(id);
             for (const header of apiResponseHeaders) {
                 const {headerName, headerValue} = header;
-                if (!headerName || !headerValue) {
-                    logger.error('Invalid response headers data');
-                    return res.status(400).json(new ResponseModel('error', 'Invalid response headers data'));
-                }
+                await responseHeadersRepository.addResponseHeader(headerName, String(headerValue), id);
             }
-            try {
-                await responseHeadersRepository.deleteResponseHeaders(id);
-                for (const header of apiResponseHeaders) {
-                    const {headerName, headerValue} = header;
-                    await responseHeadersRepository.addResponseHeader(headerName, String(headerValue), id);
-                }
-            } catch (error) {
-                logger.error(error);
-                return res.status(500).json(new ResponseModel('error', 'Failed to update the response headers', null, String(error)));
-            }
-        }
-
-        try {
-            await apiDetailsRepository.updateApiDetail(id, apiDetail);
-            apiDetail.apiResponseHeaders = req.body.apiResponseHeaders;
-            logger.info('API details updated successfully')
-            return res.status(200).json(new ResponseModel('success', 'API details updated successfully', apiDetail));
         } catch (error) {
             logger.error(error);
-            return res.status(400).json(new ResponseModel('error', 'Error in updating SQL', null, String(error)));
+            return res.status(500).json(new ResponseModel('error', 'Failed to update the response headers', null, String(error)));
         }
+    }
 
+    try {
+        await apiDetailsRepository.updateApiDetail(id, apiDetail);
+        apiDetail.apiResponseHeaders = req.body.apiResponseHeaders;
+        logger.info('API details updated successfully')
+        return res.status(200).json(new ResponseModel('success', 'API details updated successfully', apiDetail));
+    } catch (error) {
+        logger.error(error);
+        return res.status(400).json(new ResponseModel('error', 'Error in updating SQL', null, String(error)));
+    }
 
 
 }
@@ -183,27 +207,25 @@ const deleteApiDetails = async (req: Request, res: Response) => {
 
 const addResponseHeaders = async (req: Request, res: Response) => {
     logger.info('Adding response headers', req.body)
-        const {apiResponseHeaders, apiId} = req.body;
-        if (!apiResponseHeaders || !apiId) return res.status(400).json(new ResponseModel('error', 'Invalid request'));
+    const {apiResponseHeaders, apiId} = req.body;
+    if (!apiResponseHeaders || !apiId) return res.status(400).json(new ResponseModel('error', 'Invalid request'));
 
+    try {
+        await apiDetailsRepository.checkApiDetailExists(apiId);
+    } catch (error) {
+        return res.status(404).json(new ResponseModel('error', 'API details not found', null, error));
+    }
+
+    for (const [key, value] of Object.entries(apiResponseHeaders)) {
+        if (!key || !value) return res.status(400).json(new ResponseModel('error', 'Invalid response headers data'));
         try {
-            await apiDetailsRepository.checkApiDetailExists(apiId);
+            await responseHeadersRepository.addResponseHeader(key, String(value), apiId);
         } catch (error) {
-            return res.status(404).json(new ResponseModel('error', 'API details not found', null, error));
+            logger.error(error);
+            return res.status(500).json(new ResponseModel('error', 'Failed to add the response headers', null, error));
         }
-
-        for (const [key, value] of Object.entries(apiResponseHeaders)) {
-            if (!key || !value) return res.status(400).json(new ResponseModel('error', 'Invalid response headers data'));
-            try {
-                await responseHeadersRepository.addResponseHeader(key, String(value), apiId);
-            } catch (error) {
-                logger.error(error);
-                return res.status(500).json(new ResponseModel('error', 'Failed to add the response headers', null, error));
-            }
-        }
-        return res.status(201).json(new ResponseModel('success', 'Response headers added successfully'));
-
-
+    }
+    return res.status(201).json(new ResponseModel('success', 'Response headers added successfully'));
 }
 
 const getResponseHeaders = async (req: Request, res: Response) => {
@@ -236,7 +258,6 @@ const deleteResponseHeaders = async (req: Request, res: Response) => {
         logger.error(error);
         return res.status(500).json(new ResponseModel('error', 'Failed to delete the response header', null, String(error)));
     }
-
 }
 
 const updateResponseHeaders = async (req: Request, res: Response) => {
@@ -251,8 +272,6 @@ const updateResponseHeaders = async (req: Request, res: Response) => {
         logger.error(error)
         return res.status(500).json(new ResponseModel('error', 'Failed to update the response header', null, String(error)));
     }
-
-
 }
 
 
