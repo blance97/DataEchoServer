@@ -32,24 +32,24 @@ export function getStringFromResponseBody(responseBody: any, format: string): st
             case 'CSV':
                 Papa.parse(responseBody, {
                     header: true,
-                    complete: (result) => parsedBody = result.data,
+                    complete: (result) => parsedBody = JSON.stringify(result.data),
                     error: (error) => {
                         throw new Error(`Failed to parse CSV: ${error}`);
                     }
                 });
                 break;
             case 'MessagePack':
-                parsedBody = msgpack5().decode(responseBody);
+                parsedBody = JSON.stringify(msgpack5().decode(responseBody));
                 break;
             case 'YAML':
-                parsedBody = yaml.load(responseBody);
+                parsedBody = JSON.stringify(yaml.load(responseBody));
                 break;
         }
     } catch (error) {
         throw new Error(`Failed to parse the response body as ${format}: ${error}`);
     }
 
-    return String(parsedBody);
+    return parsedBody;
 }
 
 export function convertStringToFormat(input: string, format: string): any {

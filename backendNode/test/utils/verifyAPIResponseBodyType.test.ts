@@ -20,7 +20,7 @@ describe('getStringFromResponseBody', () => {
     it('returns stringified XML when format is XML', () => {
         const responseBody = '<key>value</key>';
         const result = getStringFromResponseBody(responseBody, 'XML');
-        expect(result).toBe(JSON.stringify(responseBody));
+        expect(result).toBe(responseBody);
     });
 
     it('returns stringified MessagePack when format is MessagePack', () => {
@@ -33,13 +33,13 @@ describe('getStringFromResponseBody', () => {
     it('returns stringified HTML when format is HTML', () => {
         const responseBody = '<div>Test</div>';
         const result = getStringFromResponseBody(responseBody, 'HTML');
-        expect(result).toBe(JSON.stringify(responseBody));
+        expect(result).toBe(responseBody);
     });
 
     it('returns stringified Text when format is Text', () => {
         const responseBody = 'Test text';
         const result = getStringFromResponseBody(responseBody, 'Text');
-        expect(result).toBe(JSON.stringify(responseBody));
+        expect(result).toBe(responseBody);
     });
 
     it('returns stringified CSV when format is CSV', () => {
