@@ -1,14 +1,14 @@
 class ApiDetailsModel {
-    apiName: String;
+    apiName: string;
     groupId: Number;
-    apiMethod: String;
-    apiResponseBodyType: String;
-    apiResponseBody: String;
+    apiMethod: string;
+    apiResponseBodyType: string;
+    apiResponseBody: string;
     apiResponseCode: Number;
     id?: number;
     apiResponseHeaders?: Array<{ key: string, value: string }>;
 
-    constructor(apiName: String, groupId: number, apiMethod: String, apiResponseBodyType: string, apiResponseBody: String, apiResponseCode: String, id?: number, headers?: Array<{
+    constructor(apiName: string, groupId: number, apiMethod: string, apiResponseBodyType: string, apiResponseBody: string, apiResponseCode: String, id?: number, headers?: Array<{
         key: string,
         value: string
     }>) {

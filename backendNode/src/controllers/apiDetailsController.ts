@@ -24,7 +24,7 @@ const addApiDetails = async (req: Request, res: Response) => {
 
         if (!newApiDetail.isValid()) {
             logger.error('Invalid API details data');
-            return res.status(400).json(new ResponseModel('error', 'Invalid API details data'));
+            return res.status(400).json(new ResponseModel('error', 'Invalid API details data', null, 'Invalid API details data'));
         }
 
         try {
@@ -119,11 +119,8 @@ const getApiDetailsfromId = async (req: Request, res: Response) => {
 const updateApiDetails = async (req: Request, res: Response) => {
     logger.info('Updating API details', req.body)
     const {id, apiName, groupId, apiMethod, apiResponseBodyType, apiResponseBody, apiResponseCode} = req.body;
-    let responseBody = apiResponseBody;
-    if (typeof apiResponseBody === 'object' && apiResponseBody !== null) {
-        responseBody = JSON.stringify(apiResponseBody);
-    }
-    const apiDetail: ApiDetailsModel = new ApiDetailsModel(apiName, groupId, apiMethod, apiResponseBodyType, responseBody, apiResponseCode, id);
+
+    const apiDetail: ApiDetailsModel = new ApiDetailsModel(apiName, groupId, apiMethod, apiResponseBodyType, apiResponseBody, apiResponseCode, id);
     if (!apiDetail.isValid()) {
         logger.error('Invalid API details data');
         return res.status(400).json(new ResponseModel('error', 'Invalid API details data'));

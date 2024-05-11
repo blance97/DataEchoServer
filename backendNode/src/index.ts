@@ -1,5 +1,5 @@
 // index.ts
-import express, {Application} from 'express';
+import express, {Application, NextFunction, Request, Response} from 'express';
 import bodyParser from 'body-parser';
 import groupRouter from './routes/groupRouter';
 import initializeDatabase from '../scripts/createTables';
@@ -15,6 +15,15 @@ const port = 3000 || process.env.PORT
 initializeDatabase();
 
 app.use(bodyParser.json());
+
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    if ('body' in err) {
+        res.status(400).json({ message: 'Invalid JSON' }); // Bad request
+        return;
+    }
+
+    next();
+});
 
 app.use('/api/des', groupRouter);
 app.use('/api/des', apiDetailsRouter);

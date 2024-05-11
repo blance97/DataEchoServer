@@ -1,4 +1,4 @@
-import { getStringFromResponseBody } from '../../src/utils/verifyAPIResponseBodyType';
+import {convertStringToFormat, getStringFromResponseBody} from '../../src/utils/verifyAPIResponseBodyType';
 
 describe('getStringFromResponseBody', () => {
     it('returns stringified JSON when format is JSON', () => {
@@ -55,5 +55,54 @@ describe('getStringFromResponseBody', () => {
         expect(result).toBe(JSON.stringify({ key: 'value' }));
     });
 
-    // Add more tests for other formats and edge cases
+});
+
+describe('convertStringToFormat', () => {
+    it('converts string to JSON when format is JSON', () => {
+        const input = '{"key":"value"}';
+        const result = convertStringToFormat(input, 'JSON');
+        expect(result).toEqual({key: 'value'});
+    });
+
+    it('throws error when format is unsupported', () => {
+        const input = '<key>value</key>';
+        expect(() => convertStringToFormat(input, 'UnsupportedFormat')).toThrowError('Unsupported format: UnsupportedFormat');
+    });
+
+    it('converts string to XML when format is XML', () => {
+        const input = '<key>value</key>';
+        const result = convertStringToFormat(input, 'XML');
+        expect(result).toBe(input);
+    });
+
+    it('converts string to HTML when format is HTML', () => {
+        const input = '<div>Test</div>';
+        const result = convertStringToFormat(input, 'HTML');
+        expect(result).toBe(input);
+    });
+
+    it('converts string to Text when format is Text', () => {
+        const input = 'Test text';
+        const result = convertStringToFormat(input, 'Text');
+        expect(result).toBe(input);
+    });
+
+    it('converts string to CSV when format is CSV', () => {
+        const input = 'name,age\nAlice,20\nBob,25';
+        const result = convertStringToFormat(input, 'CSV');
+        expect(result).toEqual([{name: 'Alice', age: '20'}, {name: 'Bob', age: '25'}]);
+    });
+
+    it('converts string to MessagePack when format is MessagePack', () => {
+        const msgpack = require('msgpack5')();
+        const input = msgpack.encode({key: 'value'});
+        const result = convertStringToFormat(input, 'MessagePack');
+        expect(result).toEqual({key: 'value'});
+    });
+
+    it('converts string to YAML when format is YAML', () => {
+        const input = 'key: value';
+        const result = convertStringToFormat(input, 'YAML');
+        expect(result).toEqual({key: 'value'});
+    });
 });

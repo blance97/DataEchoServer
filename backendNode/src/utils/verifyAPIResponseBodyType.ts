@@ -17,7 +17,7 @@ export function getStringFromResponseBody(responseBody: any, format: string): st
     try {
         switch (format) {
             case 'JSON':
-                parsedBody = JSON.parse(responseBody);
+                parsedBody = JSON.stringify(JSON.parse(responseBody));
                 break;
             case 'XML':
                 let res: Element | ElementCompact = js2xmljs.xml2js(responseBody);
@@ -30,13 +30,11 @@ export function getStringFromResponseBody(responseBody: any, format: string): st
                 parsedBody = responseBody;
                 break;
             case 'CSV':
-                console.log(responseBody);
                 Papa.parse(responseBody, {
                     header: true,
                     complete: (result) => parsedBody = result.data,
                     error: (error) => {
-                        console.error(`Failed to parse CSV: ${error}`);
-                        parsedBody = responseBody;
+                        throw new Error(`Failed to parse CSV: ${error}`);
                     }
                 });
                 break;
@@ -51,5 +49,45 @@ export function getStringFromResponseBody(responseBody: any, format: string): st
         throw new Error(`Failed to parse the response body as ${format}: ${error}`);
     }
 
-    return JSON.stringify(parsedBody);
+    return String(parsedBody);
+}
+
+export function convertStringToFormat(input: string, format: string): any {
+    let result: any;
+
+    switch (format) {
+        case 'JSON':
+            result = JSON.parse(input);
+            break;
+        case 'XML':
+            let res: ElementCompact = js2xmljs.xml2js(input);
+            result = js2xmljs.js2xml(res);
+            break;
+        case 'HTML':
+            result = input;
+            break;
+        case 'Text':
+            result = input;
+            break;
+        case 'CSV':
+            Papa.parse(input, {
+                header: true,
+                complete: (parsedResult) => result = parsedResult.data,
+                error: (error: any) => {
+                    console.error(`Failed to parse CSV: ${error}`);
+                    throw new Error(`Failed to parse CSV: ${error}`);
+                }
+            });
+            break;
+        case 'MessagePack':
+            result = msgpack5().decode(Buffer.from(input));
+            break;
+        case 'YAML':
+            result = yaml.load(input);
+            break;
+        default:
+            throw new Error(`Unsupported format: ${format}`);
+    }
+
+    return result;
 }
