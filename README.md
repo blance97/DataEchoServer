@@ -79,3 +79,4 @@ Photos of the application can be found in the `assets` directory.
 ![api](assets/api.png)
 ![sendReq](assets/sendReq.png)
 ![result](assets/result.png)
+
