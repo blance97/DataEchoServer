@@ -12,7 +12,8 @@ Please note that the routes starting with `/api/des/*` are reserved for internal
 1. [Getting Started](#getting-started)
 2. [Auto-Generating UUIDs](#auto-generating-uuids)
 3. [Running the Application](#running-the-application)
-4. [Application Screenshots](#application-screenshots)
+4. [DockerHub Repositories](#dockerhub-repositories)
+5. [Application Screenshots](#application-screenshots)
 
 ## Getting Started
 
@@ -62,6 +63,12 @@ docker-compose up -d
 This will spin up an nginx server that serves the React application and a Node.js server that serves the backend API. The React application will be available at http://localhost:8080.
 You can use http://localhost:8080/* to hit the echo API.
 
+## DockerHub Repositories
+The Docker images for the frontend and backend are available on DockerHub. 
+The frontend image is available at https://hub.docker.com/repository/docker/blance97/dataechoserver-frontend/general
+The backend image is available at https://hub.docker.com/repository/docker/blance97/dataechoserver-backend/general
+
+```bash
 ## Application Screenshots
 
 Photos of the application can be found in the `assets` directory.
