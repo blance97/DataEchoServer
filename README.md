@@ -70,7 +70,6 @@ The frontend image is available at https://hub.docker.com/repository/docker/blan
 
 The backend image is available at https://hub.docker.com/repository/docker/blance97/dataechoserver-backend/general
 
-```bash
 ## Application Screenshots
 
 Photos of the application can be found in the `assets` directory.
