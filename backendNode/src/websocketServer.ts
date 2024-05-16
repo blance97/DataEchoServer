@@ -1,7 +1,8 @@
 import WebSocket from "ws";
 import logger from "./loggers";
+import { wsPort } from "../config/config.json";
 
-const wss = new WebSocket.Server({ port: 8081 });
+const wss = new WebSocket.Server({ port: wsPort });
 
 wss.on('connection', (ws) => {
     ws.on('message', (message) => {

@@ -7,8 +7,11 @@ import ApiDetailsModel from "../models/ApiDetailsModel";
 import websocketServer from "../websocketServer";
 import logger from "../loggers";
 import {convertStringToFormat} from "../utils/verifyAPIResponseBodyType";
+import {v4 as uuidv4} from 'uuid';
+import supportedFormats from "../data/SupportedHTTPResponseBodyFormats.json";
 
-interface Message{
+
+interface Message {
     requestPath: string;
     requestMethod: string;
     requestHeaders: any;
@@ -16,6 +19,7 @@ interface Message{
     responseBody: string;
     timestamp: string;
 }
+
 const validatePath = async (req: CustomRequest, res: Response) => {
 
     console.log(req.routeInfo)
@@ -64,8 +68,14 @@ const validatePath = async (req: CustomRequest, res: Response) => {
             apiDetail[0].apiResponseBody,
             apiDetail[0].apiResponseCode
         );
+
+        setContentTypeHeader(res, apiResponse.apiResponseBodyType);
+
         let responseBody = apiResponse.apiResponseBody;
-        try {
+        try {//TODO add test cases for this
+            if (supportedFormats.includes(apiResponse.apiResponseBodyType) && apiResponse.apiResponseBodyType === 'JSON') {
+                responseBody = replaceWithUUID(responseBody);
+            }
             responseBody = convertStringToFormat(responseBody, apiResponse.apiResponseBodyType);
         } catch (error) {
             logger.error('Failed to parse the response body', error);
@@ -89,6 +99,50 @@ const validatePath = async (req: CustomRequest, res: Response) => {
     } catch (error) {
         logger.error('Failed to validate the path', error);
         return res.status(500).json(new ResponseModel('DES error', 'Failed to validate the path', null, String(error)));
+    }
+}
+
+function replaceWithUUID(json: any) {
+    json = JSON.parse(json);
+    for (let key in json) {
+        if (typeof json[key] === 'object' && json[key] !== null) {
+            if (Array.isArray(json[key])) {
+                json[key] = json[key].map((item: any) => item === "${DES_UUID4}" ? uuidv4() : item);
+            } else {
+                replaceWithUUID(json[key]);
+            }
+        } else if (json[key] === "${DES_UUID4}") {
+            json[key] = uuidv4();
+        }
+    }
+    return JSON.stringify(json);
+}
+
+function setContentTypeHeader(res: Response, apiResponseBodyType: string) {
+    switch (apiResponseBodyType) {
+        case 'JSON':
+            res.setHeader('Content-Type', 'application/json');
+            break;
+        case 'XML':
+            res.setHeader('Content-Type', 'application/xml');
+            break;
+        case 'HTML':
+            res.setHeader('Content-Type', 'text/html');
+            break;
+        case 'Text':
+            res.setHeader('Content-Type', 'text/plain');
+            break;
+        case 'CSV':
+            res.setHeader('Content-Type', 'text/csv');
+            break;
+        case 'MessagePack':
+            res.setHeader('Content-Type', 'application/x-msgpack');
+            break;
+        case 'YAML':
+            res.setHeader('Content-Type', 'application/x-yaml');
+            break;
+        default:
+            res.setHeader('Content-Type', 'application/octet-stream');
     }
 }
 
