@@ -16,7 +16,7 @@ import {
     Th,
     Thead,
     Tr,
-    Text, ModalFooter
+    Text, ModalFooter, Textarea
 } from "@chakra-ui/react";
 import {useEffect, useState} from "react";
 import {GroupModel} from "./models/groupModel";
@@ -176,7 +176,7 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
                     </FormControl>
                     <FormControl mt={2}>
                         <FormLabel>API Response Body</FormLabel>
-                        <Input value={apiResponse} onChange={(e) => setApiResponse(e.target.value)}/>
+                        <Textarea value={apiResponse} onChange={(e) => setApiResponse(e.target.value)}/>
                         {apiResponseError && <Text color="red.500">{apiResponseError}</Text>}
                     </FormControl>
                     <FormControl mt={2}>

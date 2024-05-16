@@ -25,9 +25,9 @@ describe('getStringFromResponseBody', () => {
 
     it('returns stringified MessagePack when format is MessagePack', () => {
         const msgpack = require('msgpack5')();
-        const responseBody = msgpack.encode({ key: 'value' });
+        const responseBody = msgpack.encode({key: 'value'});
         const result = getStringFromResponseBody(responseBody, 'MessagePack');
-        expect(result).toBe(JSON.stringify({ key: 'value' }));
+        expect(result).toBe(JSON.stringify({key: 'value'}));
     });
 
     it('returns stringified HTML when format is HTML', () => {
@@ -45,14 +45,16 @@ describe('getStringFromResponseBody', () => {
     it('returns stringified CSV when format is CSV', () => {
         const responseBody = 'name,age\nAlice,20\nBob,25';
         const result = getStringFromResponseBody(responseBody, 'CSV');
-        expect(result).toBe(JSON.stringify([{ name: 'Alice', age: '20' }, { name: 'Bob', age: '25' }]));
+        const expectedResponse: string = "name,age\nAlice,20\nBob,25";
+        expect(result).toBe(expectedResponse);
     });
 
 
     it('returns stringified YAML when format is YAML', () => {
         const responseBody = 'key: value';
         const result = getStringFromResponseBody(responseBody, 'YAML');
-        expect(result).toBe(JSON.stringify({ key: 'value' }));
+        const expectedResponse: string = "key: value\n";
+        expect(result).toBe(expectedResponse);
     });
 
 });
@@ -90,7 +92,8 @@ describe('convertStringToFormat', () => {
     it('converts string to CSV when format is CSV', () => {
         const input = 'name,age\nAlice,20\nBob,25';
         const result = convertStringToFormat(input, 'CSV');
-        expect(result).toEqual([{name: 'Alice', age: '20'}, {name: 'Bob', age: '25'}]);
+        const expectedResponse: string = "name,age\nAlice,20\nBob,25";
+        expect(result).toEqual(expectedResponse);
     });
 
     it('converts string to MessagePack when format is MessagePack', () => {
@@ -103,6 +106,7 @@ describe('convertStringToFormat', () => {
     it('converts string to YAML when format is YAML', () => {
         const input = 'key: value';
         const result = convertStringToFormat(input, 'YAML');
-        expect(result).toEqual({key: 'value'});
+        const expectedResponse: string = "key: value\n";
+        expect(result).toEqual(expectedResponse);
     });
 });

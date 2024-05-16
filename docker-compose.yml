@@ -5,12 +5,12 @@ services:
     image: blance97/dataechoserver-backend:latest
     ports:
       - "3000:3000"
-      - "8081:8081"
+      - "3001:3001"
 
   frontend:
     image: blance97/dataechoserver-frontend:latest
     ports:
-      - "8080:80"
+      - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:

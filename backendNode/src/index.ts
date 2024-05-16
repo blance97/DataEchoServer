@@ -8,11 +8,16 @@ import dataInterchangerRouter from "./routes/dataInterchangerRouter";
 import echoRouter from "./routes/echoRouter";
 import logger from "./loggers";
 import websocketServer from "./websocketServer";
+import {appPort} from "../config/config.json";
 
 const app: Application = express()
-const port = 3000 || process.env.PORT
+const port = appPort || process.env.PORT
 
-initializeDatabase();
+initializeDatabase().then(r =>
+    logger.info('Database initialized')
+).catch(e =>
+    logger.error('Error initializing database', e)
+);
 
 app.use(bodyParser.json());
 
@@ -31,7 +36,7 @@ app.use('/api/des', dataInterchangerRouter);
 app.use('*', echoRouter);
 
 app.listen(port, () => {
-    logger.info(`Server is running at http://localhost:${port}`); // Use the logger instead of console.log
+    logger.info(`Server is running at http://localhost:${port}`);
 });
 
 websocketServer.wss;
