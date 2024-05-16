@@ -65,7 +65,9 @@ You can use http://localhost:8080/* to hit the echo API.
 
 ## DockerHub Repositories
 The Docker images for the frontend and backend are available on DockerHub. 
+
 The frontend image is available at https://hub.docker.com/repository/docker/blance97/dataechoserver-frontend/general
+
 The backend image is available at https://hub.docker.com/repository/docker/blance97/dataechoserver-backend/general
 
 ```bash
