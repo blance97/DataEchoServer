@@ -24,6 +24,7 @@ import ApiDetailModel from "./models/apiDetailModel";
 import HeaderModel from "./models/HeaderModel";
 import HTTPResponseCodes from './HTTPResponseCodes.json';
 import SupportedHTTPResponseBodyFormats from './SupportedHTTPResponseBodyFormats.json';
+import { validateResponseBody } from './validateResponseBody';
 
 const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
     isOpen: boolean,
@@ -45,6 +46,7 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
     const [apiResponseCodeError, setApiResponseCodeError] = useState('');
     const [groupError, setGroupError] = useState('');
     const [filterTerm, setFilterTerm] = useState('');
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     useEffect(() => {
         if (apiStatus === 'idle' && !error) {
@@ -67,6 +69,7 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
             setSelectedGroup(groups[0].id);
         }
     }, [apiStatus, error, groups]);
+
     const handleAddHeader = () => {
         setHeaders([...headers, {headerName: '', headerValue: ''}]);
     };
@@ -80,6 +83,18 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
         newHeaders[index] = {headerName, headerValue};
         setHeaders(newHeaders);
     };
+
+    const validateHeaders = () => {
+        for (const header of headers) {
+            if (!header.headerName.trim() || !header.headerValue.trim()) {
+                setValidationError("Headers cannot be empty.");
+                return false;
+            }
+        }
+        setValidationError(null);
+        return true;
+    };
+
     const handleAddApi = () => {
         let isValid = true;
         if (!selectedGroup || selectedGroup === -1) {
@@ -104,6 +119,9 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
         if (!apiResponse) {
             setApiResponseError('API Response is required');
             isValid = false;
+        } else if (!validateResponseBody(apiResponse, apiResponseBodyType)) {
+            setApiResponseError('Invalid API Response Body format');
+            isValid = false;
         } else {
             setApiResponseError('');
         }
@@ -115,7 +133,7 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
             setApiResponseCodeError('');
         }
 
-        if (isValid) {
+        if (isValid && validateHeaders()) {
             const apiDetails: ApiDetailModel = {
                 apiMethod: apiMethod,
                 apiName: apiName,
@@ -217,7 +235,7 @@ const AddApiModal = ({isOpen, onClose, onAdd, groups, error, apiStatus}: {
                         </Table>
                     </FormControl>
                     <Button colorScheme="blue" onClick={handleAddHeader} mt={2}>Add Header</Button>
-
+                    {validationError && <Text color="red.500">{validationError}</Text>}
                 </ModalBody>
                 <ModalFooter>
                     <Button colorScheme="blue" mr={3} onClick={handleAddApi}>Save</Button>

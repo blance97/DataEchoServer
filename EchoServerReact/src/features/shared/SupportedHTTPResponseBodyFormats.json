@@ -4,6 +4,5 @@
   "HTML",
   "Text",
   "CSV",
-  "MessagePack",
   "YAML"
 ]

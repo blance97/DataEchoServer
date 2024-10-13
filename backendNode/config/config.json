@@ -1,4 +1,4 @@
 {
-  "wsPort": 3001,
+  "wsPort": 8081,
   "appPort": 3000
 }
