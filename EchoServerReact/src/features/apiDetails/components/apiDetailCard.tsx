@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import {
     AccordionButton, AccordionIcon, AccordionItem,
     AccordionPanel,
@@ -15,10 +16,10 @@ import {
     Tr,
     VStack
 } from "@chakra-ui/react";
-import React, {useEffect, useState} from "react";
+import { DeleteIcon } from "@chakra-ui/icons";
 import ApiDetailModel from "../../shared/models/apiDetailModel";
-import {DeleteIcon} from "@chakra-ui/icons";
 import SupportedHTTPResponseBodyFormats from "../../shared/SupportedHTTPResponseBodyFormats.json";
+import { validateResponseBody } from "../../shared/validateResponseBody";
 
 interface ApiDetailCardProps {
     apiDetail: ApiDetailModel;
@@ -26,7 +27,7 @@ interface ApiDetailCardProps {
     deleteApi: (apiDetailId: number) => void;
 }
 
-const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, deleteApi}) => {
+const ApiDetailCard: React.FC<ApiDetailCardProps> = ({ apiDetail, updateApi, deleteApi }) => {
     const [httpMethod, setHttpMethod] = useState(apiDetail.apiMethod);
     const [originalHttpMethod, setOriginalHttpMethod] = useState(apiDetail.apiMethod);
 
@@ -43,6 +44,8 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
 
     const [apiName, setApiName] = useState(apiDetail.apiName);
     const [originalApiName, setOriginalApiName] = useState(apiDetail.apiName);
+
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     useEffect(() => {
         setHttpMethod(apiDetail.apiMethod);
@@ -62,14 +65,13 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
 
     }, [apiDetail]);
 
-
     const handleAddHeader = () => {
-        setResponseHeaders([...responseHeaders, {headerName: '', headerValue: ''}]);
+        setResponseHeaders([...responseHeaders, { headerName: '', headerValue: '' }]);
     };
 
     const handleEditHeader = (index: number, key: string, value: string) => {
         const newHeaders = [...responseHeaders];
-        newHeaders[index] = {headerName: key, headerValue: value};
+        newHeaders[index] = { headerName: key, headerValue: value };
         setResponseHeaders(newHeaders);
     };
 
@@ -79,17 +81,37 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
         setResponseHeaders(newHeaders);
     };
 
+    const validateHeaders = () => {
+        for (const header of responseHeaders) {
+            if (!header.headerName.trim() || !header.headerValue.trim()) {
+                setValidationError("Headers cannot be empty.");
+                return false;
+            }
+        }
+        setValidationError(null);
+        return true;
+    };
+
     const onSave = () => {
-        updateApi({
-            ...apiDetail,
-            apiName: apiName,
-            apiMethod: httpMethod,
-            apiResponseBodyType: responseBodyType,
-            apiResponseCode: responseCode,
-            apiResponseBody: responseBody,
-            apiResponseHeaders: responseHeaders
-        });
-    }
+        setValidationError(null); // Clear previous errors
+
+        if (!validateResponseBody(responseBody, responseBodyType)) {
+            setValidationError('Invalid API Response Body format');
+            return;
+        }
+
+        if (validateHeaders()) {
+            updateApi({
+                ...apiDetail,
+                apiName: apiName,
+                apiMethod: httpMethod,
+                apiResponseBodyType: responseBodyType,
+                apiResponseCode: responseCode,
+                apiResponseBody: responseBody,
+                apiResponseHeaders: responseHeaders
+            });
+        }
+    };
 
     const handleDelete = (event: React.MouseEvent) => {
         event.stopPropagation();
@@ -98,7 +120,7 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
                 deleteApi(apiDetail.id);
             }
         }
-    }
+    };
 
     const getColor = (method: string) => {
         switch (method) {
@@ -119,20 +141,19 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
         <AccordionItem border="none">
             <AccordionButton>
                 <Box flex="1" textAlign="left">
-                    <Text as="span" color={getColor(apiDetail.apiMethod)}
-                          fontWeight="bold">{apiDetail.apiMethod}</Text>
+                    <Text as="span" color={getColor(apiDetail.apiMethod)} fontWeight="bold">{apiDetail.apiMethod}</Text>
                     {' '}
                     <Text as="span">{apiDetail.apiName}</Text>
                 </Box>
                 <IconButton
                     as='div'
                     aria-label="Delete"
-                    icon={<DeleteIcon/>}
+                    icon={<DeleteIcon />}
                     variant="ghost"
                     colorScheme="red"
-                    onClick={(event) => handleDelete(event)} // Add your delete handler here
+                    onClick={(event) => handleDelete(event)}
                 />
-                <AccordionIcon/>
+                <AccordionIcon />
             </AccordionButton>
             <AccordionPanel>
                 <VStack align="start" spacing={2}>
@@ -140,8 +161,7 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
                         <FormLabel>API Name</FormLabel>
                         <Input mb={2} backgroundColor={apiName !== originalApiName ? '#F6E05E' : 'white'}
                                value={apiName.startsWith('/') ? apiName : '/' + apiName}
-                               onChange={(e) => setApiName(e.target.value)}/>
-
+                               onChange={(e) => setApiName(e.target.value)} />
 
                         <FormLabel>HTTP Method</FormLabel>
                         <Select value={httpMethod}
@@ -158,7 +178,7 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
                         <Input value={responseCode}
                                backgroundColor={responseCode !== originalResponseCode ? '#F6E05E' : 'white'}
                                onChange={(e) => setResponseCode(Number(e.target.value))} type="text"
-                               pattern="\d*" maxLength={5}/>
+                               pattern="\d*" maxLength={5} />
                     </Box>
                     <Box borderWidth="1px" bg="gray.50" borderRadius="md" p={4} my={2} boxShadow="base" width="100%">
                         <FormLabel>Response Format</FormLabel>
@@ -173,8 +193,12 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
                         <Textarea placeholder="Response Body"
                                   value={responseBody}
                                   backgroundColor={responseBody !== originalResponseBody ? '#F6E05E' : 'white'}
-                                  onChange={(e) => setResponseBody(e.target.value)} height="150px"
-                                  width="100%"/>
+                                  onChange={(e) => {
+                                      setResponseBody(e.target.value);
+                                      setValidationError(null);
+                                  }} height="150px"
+                                  width="100%" />
+                        {validationError && <Text color="red.500">{validationError}</Text>}
                     </Box>
                     <Box borderWidth="1px" bg="gray.50" borderRadius="md" p={4} my={2} boxShadow="base" width="100%">
                         <Table variant="simple">
@@ -200,14 +224,14 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({apiDetail, updateApi, dele
                         </Table>
                         <Button colorScheme="blue" onClick={handleAddHeader}>Add Header</Button>
                     </Box>
-
                 </VStack>
                 <Flex justifyContent="flex-end">
-                    <Button mr="2" onClick={onSave} colorScheme="blue">Save</Button>
+                    <Button mr="2" onClick={onSave} colorScheme="blue" isDisabled={!!validationError}>Save</Button>
                     <Button colorScheme="red">Delete</Button>
                 </Flex>
             </AccordionPanel>
         </AccordionItem>
     );
 }
+
 export default ApiDetailCard;
