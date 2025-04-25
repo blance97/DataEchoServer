@@ -102,10 +102,31 @@ const validatePath = async (req: CustomRequest, res: Response) => {
     }
 }
 
-function replaceWithUUID(json: any) {
-    if (typeof json === "string") {
-        json = JSON.parse(json);
+function parseDeepJson(obj: any): any {
+    if (typeof obj === 'string') {
+        try {
+            const parsed = JSON.parse(obj);
+            return parseDeepJson(parsed);
+        } catch (e) {
+            return obj;
+        }
     }
+
+    if (Array.isArray(obj)) {
+        return obj.map(parseDeepJson);
+    }
+
+    if (typeof obj === 'object' && obj !== null) {
+        for (const key in obj) {
+            obj[key] = parseDeepJson(obj[key]);
+        }
+    }
+
+    return obj;
+}
+
+function replaceWithUUID(json: any): any {
+    json = parseDeepJson(json);
 
     for (let key in json) {
         if (typeof json[key] === 'object' && json[key] !== null) {
@@ -119,7 +140,7 @@ function replaceWithUUID(json: any) {
         }
     }
 
-    return JSON.stringify(json);
+    return json; // do not JSON.stringify here unless you're responding with a raw string
 }
 
 function setContentTypeHeader(res: Response, apiResponseBodyType: string) {
