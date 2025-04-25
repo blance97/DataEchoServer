@@ -103,18 +103,22 @@ const validatePath = async (req: CustomRequest, res: Response) => {
 }
 
 function replaceWithUUID(json: any) {
-    json = JSON.parse(json);
+    if (typeof json === "string") {
+        json = JSON.parse(json);
+    }
+
     for (let key in json) {
         if (typeof json[key] === 'object' && json[key] !== null) {
             if (Array.isArray(json[key])) {
                 json[key] = json[key].map((item: any) => item === "${DES_UUID4}" ? uuidv4() : item);
             } else {
-                replaceWithUUID(json[key]);
+                json[key] = replaceWithUUID(json[key]);
             }
         } else if (json[key] === "${DES_UUID4}") {
             json[key] = uuidv4();
         }
     }
+
     return JSON.stringify(json);
 }
 
