@@ -20,9 +20,8 @@ interface Message {
     timestamp: string;
 }
 
-const validatePath = async (req: CustomRequest, res: Response) => {
+export const validatePath = async (req: CustomRequest, res: Response) => {
 
-    console.log(req.routeInfo)
     const {
         path = '', method = '', headers
     } = req.routeInfo || {};
@@ -73,8 +72,11 @@ const validatePath = async (req: CustomRequest, res: Response) => {
 
         let responseBody = apiResponse.apiResponseBody;
         try {//TODO add test cases for this
-            if (supportedFormats.includes(apiResponse.apiResponseBodyType) && apiResponse.apiResponseBodyType === 'JSON') {
-                responseBody = replaceWithUUID(responseBody);
+            if (
+                supportedFormats.includes(apiResponse.apiResponseBodyType) &&
+                apiResponse.apiResponseBodyType === "JSON"
+            ) {
+                responseBody = JSON.stringify(replaceWithUUID(responseBody));
             }
             responseBody = convertStringToFormat(responseBody, apiResponse.apiResponseBodyType);
         } catch (error) {

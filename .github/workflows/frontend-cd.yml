@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'EchoServerReact/**'
+      - '../../frontend/**'
       - '.github/workflows/frontend-cd.yml'
 
 jobs:
