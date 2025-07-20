@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backendNode
+        working-directory: ./backend
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
@@ -24,4 +24,4 @@ jobs:
         run: npm install
       - uses: ArtiomTr/jest-coverage-report-action@v2
         with:
-          working-directory: ./backendNode
+          working-directory: ./backend
