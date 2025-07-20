@@ -5,8 +5,12 @@ on:
       - main
     paths:
       - 'backend/**'
+      - 'frontend/**'
+      - 'package.json'
+      - 'package-lock.json' # Add this line
       - '.github/workflows/backend-cd.yml'
       - '.github/workflows/backend-ci.yml'
+  workflow_dispatch: { }
 
 jobs:
   docker:
