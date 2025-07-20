@@ -71,7 +71,7 @@ export const validatePath = async (req: CustomRequest, res: Response) => {
         setContentTypeHeader(res, apiResponse.apiResponseBodyType);
 
         let responseBody = apiResponse.apiResponseBody;
-        try {//TODO add test cases for this
+        try {
             if (
                 supportedFormats.includes(apiResponse.apiResponseBodyType) &&
                 apiResponse.apiResponseBodyType === "JSON"

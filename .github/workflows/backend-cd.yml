@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - '../../backend/**'
+      - 'backend/**'
       - '.github/workflows/backend-cd.yml'
       - '.github/workflows/backend-ci.yml'
 

@@ -19,9 +19,9 @@ initializeDatabase()
 // Middleware for JSON parsing
 app.use(express.json());
 
-// Adjust the static paths so that they point to the correct location at the project root
-const buildPath = path.join(__dirname, '../../../build');
-const assetsPath = path.join(__dirname, '../../../assets');
+// Read BUILD_PATH and ASSETS_PATH from environment variables, with fallbacks
+const buildPath = process.env.BUILD_PATH ? path.resolve(process.env.BUILD_PATH) : path.join(__dirname, '../../../build');
+const assetsPath = process.env.ASSETS_PATH ? path.resolve(process.env.ASSETS_PATH) : path.join(__dirname, '../../../assets');
 
 app.use(express.static(buildPath));
 app.use(express.static(assetsPath));
