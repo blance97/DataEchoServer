@@ -7,7 +7,7 @@ on:
       - 'backend/**'
       - 'frontend/**'
       - 'package.json'
-      - 'package-lock.json' # Add this line
+      - 'package-lock.json'
       - '.github/workflows/backend-cd.yml'
       - '.github/workflows/backend-ci.yml'
   workflow_dispatch: { }
