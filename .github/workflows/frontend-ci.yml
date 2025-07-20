@@ -1,11 +1,11 @@
-name: Frontend CI
+name: Frontend CI/CD
 
 on:
   push:
     branches:
       - main
     paths:
-      - '../../frontend/**'
+      - 'frontend/**'
       - '.github/workflows/frontend-cd.yml'
 
 jobs:
