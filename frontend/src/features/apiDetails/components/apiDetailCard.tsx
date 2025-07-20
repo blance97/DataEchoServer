@@ -95,8 +95,21 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({ apiDetail, updateApi, del
     const onSave = () => {
         setValidationError(null); // Clear previous errors
 
-        if (!validateResponseBody(responseBody, responseBodyType)) {
-            setValidationError('Invalid API Response Body format');
+        let formattedResponseBody = responseBody;
+
+        // Prettify JSON if the response body type is JSON
+        if (responseBodyType === "JSON") {
+            try {
+                const parsedJson = JSON.parse(responseBody); // Parse the JSON string
+                formattedResponseBody = JSON.stringify(parsedJson, null, 2); // Prettify with 2 spaces
+            } catch (error) {
+                setValidationError("Invalid JSON format.");
+                return;
+            }
+        }
+
+        if (!validateResponseBody(formattedResponseBody, responseBodyType)) {
+            setValidationError("Invalid API Response Body format");
             return;
         }
 
@@ -107,8 +120,8 @@ const ApiDetailCard: React.FC<ApiDetailCardProps> = ({ apiDetail, updateApi, del
                 apiMethod: httpMethod,
                 apiResponseBodyType: responseBodyType,
                 apiResponseCode: responseCode,
-                apiResponseBody: responseBody,
-                apiResponseHeaders: responseHeaders
+                apiResponseBody: formattedResponseBody, // Save prettified JSON
+                apiResponseHeaders: responseHeaders,
             });
         }
     };

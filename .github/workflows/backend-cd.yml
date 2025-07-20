@@ -4,9 +4,9 @@ on:
     branches:
       - main
     paths:
-        - 'backendNode/**'
-        - '.github/workflows/backend-cd.yml'
-        - '.github/workflows/backend-ci.yml'
+      - 'backend/**'
+      - '.github/workflows/backend-cd.yml'
+      - '.github/workflows/backend-ci.yml'
 
 jobs:
   docker:
@@ -24,19 +24,17 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push backendNode
-        uses: docker/build-push-action@v2
+      - name: Build and push backend
+        uses: docker/build-push-action@v5 # Added this line
         with:
-          context: ./backendNode
+          context: ./backend
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-backend:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/dataechoserver-backend:${{ steps.extract_sha.outputs.sha_short }}
-
       - name: Bump version and push changes
         run: |
-          cd backendNode
+          cd backend
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          npm version patch -m "Bump version to %s"
           git push
